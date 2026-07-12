@@ -163,7 +163,7 @@ files = ["SkyDome.fxo"]
 [[mod]]
 id = "shader-speedgrass"
 type = "shader-replace"
-enabled = false
+enabled = true
 title = "SpeedGrass - base AO + colour variation"
 desc = "Ambient-occlusion darkening toward the blade base, per-instance colour variation, soft light wrap; alpha-test edges preserved. Wind/vertex transform verified against the original (A/B maxDiff 72->31). Opt-in (subtle)."
 files = ["SpeedGrass.fxo"]
@@ -197,7 +197,7 @@ files = ["PostEffect_LightScattering.fxo"]
 [[mod]]
 id = "shader-object-static-diffuse"
 type = "shader-replace"
-enabled = false
+enabled = true
 title = "NoChar_Def - modern static-model lighting"
 desc = "Half-lambert diffuse wrap, richer (hemispheric) ambient, subtle Fresnel rim to separate models from the background. Static (non-character) props/buildings/weapons."
 files = ["NoChar_Def.fxo"]
@@ -205,7 +205,7 @@ files = ["NoChar_Def.fxo"]
 [[mod]]
 id = "shader-object-static-specular"
 type = "shader-replace"
-enabled = false
+enabled = true
 title = "NoChar_Spec - modern static-model specular"
 desc = "Energy-conserving normalized Blinn-Phong specular, Fresnel-modulated intensity, tighter/brighter highlights."
 files = ["NoChar_Spec.fxo"]
@@ -213,7 +213,7 @@ files = ["NoChar_Spec.fxo"]
 [[mod]]
 id = "shader-object-default"
 type = "shader-replace"
-enabled = false
+enabled = true
 title = "Rag2ObjectShader_Default - modern object lighting"
 desc = "Half-lambert wrap, better ambient, subtle Fresnel rim, richer colour response for world objects."
 files = ["Rag2ObjectShader_Default.fxo"]
@@ -221,7 +221,7 @@ files = ["Rag2ObjectShader_Default.fxo"]
 [[mod]]
 id = "shader-object-reflection"
 type = "shader-replace"
-enabled = false
+enabled = true
 title = "Rag2ObjectShader_Reflection - modern fresnel reflection"
 desc = "Schlick-Fresnel-weighted environment reflection (weak head-on, strong at grazing angle) + small specular, instead of a flat reflection blend."
 files = ["Rag2ObjectShader_Reflection.fxo"]
