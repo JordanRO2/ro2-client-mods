@@ -197,6 +197,17 @@ def apply_shaders(cfg, shader_mods, vdk_bak, dry=False):
                     data, n, status = _bytepatch(data, p["find"], p["repl"], p.get("count"))
                     tgt.write_bytes(data)
                     print(f"    bytepatch {p['file']}: {n} site(s) [{status}]")
+            elif m["type"] == "texture":
+                for fe in m["file"]:
+                    src = ROOT / fe["src"]
+                    if not src.exists():
+                        sys.exit(f"  {m['id']}: local file missing: {src}")
+                    dst = work / fe["dst"]
+                    if not dst.exists():
+                        print(f"    WARNING: {fe['dst']} not in VDK - adding new (verify path)")
+                    dst.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(src, dst)
+                    print(f"    texture {fe['dst']}")
         out = vdk.with_suffix(".vdk.new")
         r = subprocess.run([tool, "pack", str(work), str(out)], capture_output=True, text=True)
         if r.returncode != 0:
@@ -229,7 +240,7 @@ def cmd_apply(cfg, state, selection, dry):
     print(f"Applying: {', '.join(m['id'] for m in chosen) or '(nothing)'}\n")
     exe_bak, vdk_bak = ensure_baseline(cfg, dry)
     apply_exe(cfg, [m for m in chosen if m["type"] == "exe"], exe_bak, dry)
-    apply_shaders(cfg, [m for m in chosen if m["type"].startswith("shader")], vdk_bak, dry)
+    apply_shaders(cfg, [m for m in chosen if m["type"] != "exe"], vdk_bak, dry)
     if not dry:
         (BACKUPS / "applied.json").write_text(json.dumps([m["id"] for m in chosen], indent=2))
     print(f"\n{C_OK}Done.{C_END} Launch the client to test. Undo everything with: python apply.py --revert")

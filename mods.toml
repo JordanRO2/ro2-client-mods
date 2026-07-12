@@ -105,6 +105,16 @@ find  = "cdcccc3e00008041cdcc4c3e"
 repl  = "cdcc0c3f00008041cdcc4c3e"
 count = 1
 
+[[mod]]
+id = "char-toon-strong"
+type = "texture"
+enabled = true
+title = "Characters - stronger toon / cel-shading (hard-band ramp)"
+desc = "Replaces the character toon ramp (SHADERS/Data/Textures/Toon01.bmp) with a 3-band HARD-stepped version (shadow lum108 / mid 180 / lit 241) instead of the soft 133->231 gradient: sharper cel-shading, deeper shadow + brighter light, original warm tint preserved. Affects all characters (and toon-lit objects). Texture-only -> skinning untouched."
+[[mod.file]]
+src = "textures/Toon01.bmp"
+dst = "SHADERS/Data/Textures/Toon01.bmp"
+
 # ---- MODERN recreated shaders (interface-preserving recompile: same params/samplers/
 #      techniques/vertex-semantics as the original, modernized pixel math). Each validated:
 #      compiles fx_2_0 + renders on a REF device + engine-visible contract 100% preserved. ----
