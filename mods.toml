@@ -131,7 +131,7 @@ files = ["Ocean.fxo"]
 [[mod]]
 id = "shader-oceanva"
 type = "shader-replace"
-enabled = true
+enabled = false
 title = "OceanVA (water surface) - modern fresnel + sun glint"
 desc = "Schlick fresnel sky-reflectance at grazing angles, sharp normalized sun specular glint, blue-green depth enrichment. Alpha/transparency preserved."
 files = ["OceanVA.fxo"]
@@ -139,7 +139,7 @@ files = ["OceanVA.fxo"]
 [[mod]]
 id = "shader-terrain"
 type = "shader-replace"
-enabled = true
+enabled = false
 title = "Terrain - modern detail contrast + light wrap"
 desc = "Per-texel neutral-preserving detail-texture contrast, crisper normals, half-lambert light wrap for a softer shadow terminator. Blend weights untouched."
 files = ["Terrain.fxo"]
@@ -147,7 +147,7 @@ files = ["Terrain.fxo"]
 [[mod]]
 id = "shader-toolterrain"
 type = "shader-replace"
-enabled = true
+enabled = false
 title = "ToolTerrain - modern detail contrast + light wrap"
 desc = "Same detail-contrast + half-lambert modernization as Terrain, for the tool/editor terrain variant."
 files = ["ToolTerrain.fxo"]
@@ -155,7 +155,7 @@ files = ["ToolTerrain.fxo"]
 [[mod]]
 id = "shader-skydome"
 type = "shader-replace"
-enabled = true
+enabled = false
 title = "SkyDome - richer gradient + anti-banding dither"
 desc = "Deeper/cooler zenith, warmer horizon, atmospheric desaturation near the horizon, ordered dither to kill gradient banding. Cloud cross-fade + vertex transform verified against the original (A/B maxDiff 190->17)."
 files = ["SkyDome.fxo"]
@@ -197,7 +197,7 @@ files = ["PostEffect_LightScattering.fxo"]
 [[mod]]
 id = "shader-object-static-diffuse"
 type = "shader-replace"
-enabled = true
+enabled = false
 title = "NoChar_Def - modern static-model lighting"
 desc = "Half-lambert diffuse wrap, richer (hemispheric) ambient, subtle Fresnel rim to separate models from the background. Static (non-character) props/buildings/weapons."
 files = ["NoChar_Def.fxo"]
@@ -205,7 +205,7 @@ files = ["NoChar_Def.fxo"]
 [[mod]]
 id = "shader-object-static-specular"
 type = "shader-replace"
-enabled = true
+enabled = false
 title = "NoChar_Spec - modern static-model specular"
 desc = "Energy-conserving normalized Blinn-Phong specular, Fresnel-modulated intensity, tighter/brighter highlights."
 files = ["NoChar_Spec.fxo"]
@@ -213,7 +213,7 @@ files = ["NoChar_Spec.fxo"]
 [[mod]]
 id = "shader-object-default"
 type = "shader-replace"
-enabled = true
+enabled = false
 title = "Rag2ObjectShader_Default - modern object lighting"
 desc = "Half-lambert wrap, better ambient, subtle Fresnel rim, richer colour response for world objects."
 files = ["Rag2ObjectShader_Default.fxo"]
@@ -221,7 +221,7 @@ files = ["Rag2ObjectShader_Default.fxo"]
 [[mod]]
 id = "shader-object-reflection"
 type = "shader-replace"
-enabled = true
+enabled = false
 title = "Rag2ObjectShader_Reflection - modern fresnel reflection"
 desc = "Schlick-Fresnel-weighted environment reflection (weak head-on, strong at grazing angle) + small specular, instead of a flat reflection blend."
 files = ["Rag2ObjectShader_Reflection.fxo"]
