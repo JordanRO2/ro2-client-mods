@@ -97,12 +97,12 @@ desc = "Boost the fresnel rim-light constant 0.4 -> 0.55 by editing ONLY that co
 [[mod.patch]]
 file  = "SHADERS/Char_Default.fxo"
 find  = "cdcccc3e00008041cdcc4c3e"
-repl  = "cdcc0c3f00008041cdcc4c3e"
+repl  = "3333333f00008041cdcc4c3e"
 count = 4
 [[mod.patch]]
 file  = "SHADERS/Char_HitEffect.fxo"
 find  = "cdcccc3e00008041cdcc4c3e"
-repl  = "cdcc0c3f00008041cdcc4c3e"
+repl  = "3333333f00008041cdcc4c3e"
 count = 1
 
 [[mod]]
