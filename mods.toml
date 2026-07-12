@@ -221,7 +221,7 @@ files = ["Rag2ObjectShader_Default.fxo"]
 [[mod]]
 id = "shader-object-reflection"
 type = "shader-replace"
-enabled = false
+enabled = true
 title = "Rag2ObjectShader_Reflection - modern fresnel reflection"
 desc = "Schlick-Fresnel-weighted environment reflection (weak head-on, strong at grazing angle) + small specular, instead of a flat reflection blend."
 files = ["Rag2ObjectShader_Reflection.fxo"]
