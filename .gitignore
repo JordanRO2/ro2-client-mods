@@ -1,0 +1,18 @@
+# --- Copyrighted client assets: NEVER committed (kept local only) ---
+# Modified shaders / textures / archives / executables derived from the client.
+*.fxo
+*.vdk
+*.VDK
+*.exe
+textures/*
+!textures/.gitkeep
+
+# Pristine + patched client backups captured at apply time (contain client binaries).
+backups/
+
+# Local applier state (which mods you've toggled on this machine).
+enabled.json
+
+# Python
+__pycache__/
+*.pyc

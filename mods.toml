@@ -1,0 +1,138 @@
+# =============================================================================
+# RO2 client mods — registry
+#
+# Every change we make to the client lives here as a selectable "mod":
+#   * exe            -> byte-patches to the client executable (via exe/patch_client.py)
+#   * shader-bytepatch -> pattern byte-edits inside a .fxo in DATA.VDK (constants only;
+#                         the VS/skinning stays byte-identical -> always safe on characters)
+#   * shader-replace -> swap a whole .fxo in DATA.VDK for a modified build (local file)
+#   * texture        -> (future) swap client textures
+#
+# Toggle `enabled`, then:  python apply.py --apply enabled
+# Or pick interactively:   python apply.py --menu
+# List everything:         python apply.py --list
+# Undo all mods:           python apply.py --revert
+#
+# The original exe + DATA.VDK are backed up to backups/ on first apply and every
+# apply REBUILDS from that pristine baseline, so toggling a mod off truly removes it.
+# =============================================================================
+
+[client]
+# Client to mod. `exe` and `vdk` are relative to `dir`.
+dir = "C:/Users/Darkr/Proyectos/ReverseEngineering/ragnarok-online-2/clients/ClientArchive/b303-2026-07-11-Optimizations"
+exe = "SHIPPING/Rag2.exe"
+vdk = "Data/DATA.VDK"
+
+[tools]
+python   = "python"
+vdk_tool = "C:/Users/Darkr/Proyectos/ReverseEngineering/ragnarok-online-2/tools-ragnarok-online-2-vdk/publish/win-x64/VDK_Tool.exe"
+
+# =============================================================================
+# EXE mods — curated bundles over exe/patch_client.py fix ids.
+# (Fine-grained control is always available directly:  python exe/patch_client.py --list)
+# =============================================================================
+
+[[mod]]
+id = "exe-crash-stability"
+type = "exe"
+enabled = true
+title = "Crash/stability guards + Large-Address-Aware (safe defaults)"
+desc = "LAA 2->4 GB address space (stops the long-session OOM crash cascade) + dungeon-enter null-deref + 34 RMI/UI null-vtable-call crash guards. All same-length, self-verifying inline patches."
+fix_ids = ["laa", "dungeon_enter_nullderef", "send_equip_nullvcall", "ui_send_nullvcall_6b5110", "ui_send_nullvcall_7099f0", "ui_send_nullvcall_6a55f0", "ui_msg_nullvcall_7726f0", "rmi_nullvcall_guards"]
+
+[[mod]]
+id = "exe-memory-oom"
+type = "exe"
+enabled = false
+title = "Memory / address-space - deeper OOM fix (.patch cave; runtime-untested)"
+desc = "World+model textures and static NiMesh geometry MANAGED->DEFAULT (drops the system-RAM shadow copies that exhaust the 32-bit address space) + shrink the resource-cache cooldown. Adds a .patch code section. Near-free under DXVK; device-reset hazard on raw D3D9."
+fix_ids = ["texpool_world_default", "geopool_static_default", "cache_retention_30s"]
+
+[[mod]]
+id = "exe-quality-vram"
+type = "exe"
+enabled = false
+title = "Visual quality (uses more VRAM)"
+desc = "Full-resolution textures (mip-skip 0), 2048 shadow maps, 16x anisotropic filtering, keep high-quality shaders at far/mid LOD, max view distance."
+fix_ids = ["tex_force_max_detail", "shadowmap_2048", "anisotropic_filtering", "max_lod_far", "max_lod_mid", "max_view_distance"]
+
+[[mod]]
+id = "exe-efficiency-fps"
+type = "exe"
+enabled = false
+title = "Quality-neutral FPS/smoothness"
+desc = "Remove per-frame Sleep(0), present IMMEDIATE (uncap FPS), drop D3DCREATE_MULTITHREADED locking, HARDWARE_VP+PUREDEVICE, inline hot-loop singleton getters, double-buffer."
+fix_ids = ["no_frame_sleep", "present_immediate", "d3d_no_multithread", "hw_vp_puredevice", "inline_singleton_getters", "backbuffer_double"]
+
+[[mod]]
+id = "exe-performance-cull"
+type = "exe"
+enabled = false
+title = "Draw-call reduction (.patch caves; some popping possible)"
+desc = "View-cone cull (skip world objects behind the camera) + spread equipment-NIF loading over frames (kills crowd-entry stutter)."
+fix_ids = ["cone_cull", "deferred_equip_load"]
+
+[[mod]]
+id = "exe-quality-of-life"
+type = "exe"
+enabled = false
+title = "Quality of life"
+desc = "Skip the opening-movie popup, snappier mouse-look camera, FMOD 512 channels."
+fix_ids = ["skip_opening_movie", "camera_snappy_look", "fmod_channels_512"]
+
+# =============================================================================
+# SHADER mods — character mods are byte-patches (constants only) so the vertex
+# shader / GPU-skinning register layout the engine uploads stays byte-identical:
+# a full recompile changes that layout and makes characters render invisible.
+# Non-character effects (post/world) have no skinning and are safe to recompile.
+# =============================================================================
+
+[[mod]]
+id = "shader-char-rim"
+type = "shader-bytepatch"
+enabled = false
+title = "Character rim / edge light +37% (skinning-safe)"
+desc = "Boost the fresnel rim-light constant 0.4 -> 0.55 by editing ONLY that constant in the original .fxo; every other byte (VS, GPU-skinning, ctab, techniques) is untouched, so skinning is guaranteed intact. Char_Default + Char_HitEffect (the other 11 char shaders pack the rim constant differently and still need a per-shader anchor)."
+# find = def(0.4, 16.0, 0.2)  ->  repl = def(0.55, 16.0, 0.2)   (0.4=CDCCCC3E, 0.55=CDCC0C3F)
+[[mod.patch]]
+file  = "SHADERS/Char_Default.fxo"
+find  = "cdcccc3e00008041cdcc4c3e"
+repl  = "cdcc0c3f00008041cdcc4c3e"
+count = 4
+[[mod.patch]]
+file  = "SHADERS/Char_HitEffect.fxo"
+find  = "cdcccc3e00008041cdcc4c3e"
+repl  = "cdcc0c3f00008041cdcc4c3e"
+count = 1
+
+[[mod]]
+id = "shader-ssao-strong"
+type = "shader-replace"
+enabled = false
+title = "SSAO - deeper contact shadows (+30%)"
+desc = "Recompiled PostEffect_SSAO: occlusion strength -0.33 -> -0.43 (deepest-crease brightness 0.67 -> 0.57). Full-screen post effect, no skinning; behaviour round-trips bit-exact."
+files = ["PostEffect_SSAO.fxo"]
+
+[[mod]]
+id = "shader-ocean-deep"
+type = "shader-replace"
+enabled = false
+title = "Ocean - deeper/cooler underwater tint"
+desc = "Recompiled Ocean: underwater tint (0,0.6,0.6) -> (0,0.52,0.62). Visibility floor/cap untouched."
+files = ["Ocean.fxo"]
+
+[[mod]]
+id = "shader-oceanva-enrich"
+type = "shader-replace"
+enabled = false
+title = "OceanVA - subtle blue-green water enrich"
+desc = "Recompiled OceanVA: base water color * (0.96, 1.0, 1.04). Alpha preserved."
+files = ["OceanVA.fxo"]
+
+[[mod]]
+id = "shader-terrain-crisp"
+type = "shader-replace"
+enabled = false
+title = "Terrain - +12% detail-texture contrast"
+desc = "Recompiled Terrain: per-texel detail contrast (x-0.5)*1.12+0.5 (neutral-preserving, no tiling artifacts)."
+files = ["Terrain.fxo"]
