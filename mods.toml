@@ -106,11 +106,11 @@ repl  = "cdcc0c3f00008041cdcc4c3e"
 count = 1
 
 [[mod]]
-id = "char-toon-strong"
+id = "char-smooth-shading"
 type = "texture"
 enabled = true
-title = "Characters - stronger toon / cel-shading (hard-band ramp)"
-desc = "Replaces the character toon ramp (SHADERS/Data/Textures/Toon01.bmp) with a 3-band HARD-stepped version (shadow lum108 / mid 180 / lit 241) instead of the soft 133->231 gradient: sharper cel-shading, deeper shadow + brighter light, original warm tint preserved. Affects all characters (and toon-lit objects). Texture-only -> skinning untouched."
+title = "Characters - smooth / realistic shading (anti-toon ramp)"
+desc = "Replaces the character shading ramp (SHADERS/Data/Textures/Toon01.bmp) with a fully SMOOTH continuous gradient (lum 115->245, gamma-lifted midtones, no cel bands) -- the opposite of toon: soft, gradual, realistic light falloff instead of the shipped stepped ramp. Affects all characters (and toon-lit objects). Texture-only -> skinning untouched. (The hard-band toon variant lives at modern/toon/Toon01_moretoon.bmp if wanted.)"
 [[mod.file]]
 src = "textures/Toon01.bmp"
 dst = "SHADERS/Data/Textures/Toon01.bmp"
