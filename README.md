@@ -50,14 +50,23 @@ thing being edited — the baseline is.
 - **exe-performance-cull** — view-cone cull + deferred equipment-NIF loading (crowd stutter).
 - **exe-quality-of-life** — skip opening movie, snappier camera, FMOD 512 channels.
 
-### shaders
-- **shader-char-rim** — character fresnel rim/edge light +37% (`0.4`→`0.55`), applied as a
-  **byte-patch of the original `.fxo`** so skinning is guaranteed intact. Currently
-  `Char_Default` + `Char_HitEffect`; the other 11 char shaders pack the rim constant
-  differently and still need a per-shader anchor.
-- **shader-ssao-strong** — SSAO deeper contact shadows (+30%).
-- **shader-ocean-deep** / **shader-oceanva-enrich** — deeper/cooler + enriched water.
-- **shader-terrain-crisp** — +12% detail-texture contrast.
+### shaders — 13 MODERN recreations + 1 byte-patch
+The recreations are **interface-preserving**: same params/samplers/techniques/vertex
+semantics as the original (so the engine binds+feeds them unchanged), with modernized
+pixel math. Each is validated — compiles `fx_2_0`, renders on a D3D9 REF device, and its
+engine-visible contract is byte-checked against the original. Source HLSL + the validation
+harness live in `../tools-ragnarok-online-2-shader-decompiler/modern-shaders/`.
+
+- **shader-char-rim** — character rim/edge light +37%, applied as a **byte-patch** of the
+  original `.fxo` so the vertex/skinning shader is byte-identical (guaranteed safe).
+  `Char_Default` + `Char_HitEffect`.
+- **Water:** `shader-ocean` (modern refraction + depth colour), `shader-oceanva` (fresnel + sun glint).
+- **Terrain:** `shader-terrain`, `shader-toolterrain` (detail contrast + light wrap).
+- **Sky/grass:** `shader-skydome` (gradient + anti-banding), `shader-speedgrass` (base AO) — *review-flagged, test before keeping*.
+- **Post:** `shader-adjustscreen` (filmic tonemap + colour grade, whole-frame), `shader-ssao` (occlusion + range-check), `shader-lightscattering` (smoother god rays).
+- **Object models** (props/buildings/weapons, no skinning): `shader-object-static-diffuse`,
+  `shader-object-static-specular`, `shader-object-default`, `shader-object-reflection` — modern
+  lighting/specular/fresnel. Opt-in.
 
 ## Why characters are byte-patch only
 

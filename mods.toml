@@ -105,34 +105,113 @@ find  = "cdcccc3e00008041cdcc4c3e"
 repl  = "cdcc0c3f00008041cdcc4c3e"
 count = 1
 
-[[mod]]
-id = "shader-ssao-strong"
-type = "shader-replace"
-enabled = false
-title = "SSAO - deeper contact shadows (+30%)"
-desc = "Recompiled PostEffect_SSAO: occlusion strength -0.33 -> -0.43 (deepest-crease brightness 0.67 -> 0.57). Full-screen post effect, no skinning; behaviour round-trips bit-exact."
-files = ["PostEffect_SSAO.fxo"]
+# ---- MODERN recreated shaders (interface-preserving recompile: same params/samplers/
+#      techniques/vertex-semantics as the original, modernized pixel math). Each validated:
+#      compiles fx_2_0 + renders on a REF device + engine-visible contract 100% preserved. ----
 
+# --- environment / world (recommended set on by default) ---
 [[mod]]
-id = "shader-ocean-deep"
+id = "shader-ocean"
 type = "shader-replace"
-enabled = false
-title = "Ocean - deeper/cooler underwater tint"
-desc = "Recompiled Ocean: underwater tint (0,0.6,0.6) -> (0,0.52,0.62). Visibility floor/cap untouched."
+enabled = true
+title = "Ocean (underwater) - modern refraction + depth colour"
+desc = "Two-octave animated wave (less tiling), chromatic refraction (caustic dispersion), depth-driven shallow-teal->deep-blue colour gradient, caustic shimmer. Original depth-fog shape preserved."
 files = ["Ocean.fxo"]
 
 [[mod]]
-id = "shader-oceanva-enrich"
+id = "shader-oceanva"
 type = "shader-replace"
-enabled = false
-title = "OceanVA - subtle blue-green water enrich"
-desc = "Recompiled OceanVA: base water color * (0.96, 1.0, 1.04). Alpha preserved."
+enabled = true
+title = "OceanVA (water surface) - modern fresnel + sun glint"
+desc = "Schlick fresnel sky-reflectance at grazing angles, sharp normalized sun specular glint, blue-green depth enrichment. Alpha/transparency preserved."
 files = ["OceanVA.fxo"]
 
 [[mod]]
-id = "shader-terrain-crisp"
+id = "shader-terrain"
+type = "shader-replace"
+enabled = true
+title = "Terrain - modern detail contrast + light wrap"
+desc = "Per-texel neutral-preserving detail-texture contrast, crisper normals, half-lambert light wrap for a softer shadow terminator. Blend weights untouched."
+files = ["Terrain.fxo"]
+
+[[mod]]
+id = "shader-toolterrain"
+type = "shader-replace"
+enabled = true
+title = "ToolTerrain - modern detail contrast + light wrap"
+desc = "Same detail-contrast + half-lambert modernization as Terrain, for the tool/editor terrain variant."
+files = ["ToolTerrain.fxo"]
+
+[[mod]]
+id = "shader-skydome"
+type = "shader-replace"
+enabled = true
+title = "SkyDome - richer gradient + anti-banding dither"
+desc = "Deeper/cooler zenith, warmer horizon, atmospheric desaturation near the horizon, ordered dither to kill gradient banding. Cloud cross-fade + vertex transform verified against the original (A/B maxDiff 190->17)."
+files = ["SkyDome.fxo"]
+
+[[mod]]
+id = "shader-speedgrass"
 type = "shader-replace"
 enabled = false
-title = "Terrain - +12% detail-texture contrast"
-desc = "Recompiled Terrain: per-texel detail contrast (x-0.5)*1.12+0.5 (neutral-preserving, no tiling artifacts)."
-files = ["Terrain.fxo"]
+title = "SpeedGrass - base AO + colour variation"
+desc = "Ambient-occlusion darkening toward the blade base, per-instance colour variation, soft light wrap; alpha-test edges preserved. Wind/vertex transform verified against the original (A/B maxDiff 72->31). Opt-in (subtle)."
+files = ["SpeedGrass.fxo"]
+
+# --- post-effects (recommended set on by default; full-screen, scene-wide) ---
+[[mod]]
+id = "shader-adjustscreen"
+type = "shader-replace"
+enabled = true
+title = "AdjustScreen (final composite) - filmic tonemap + colour grade"
+desc = "Filmic tonemap curve + gentle colour grade (saturation lift + subtle contrast S-curve) + soft vignette on the final composited frame. Existing brightness/contrast/gamma params still applied. Affects the WHOLE frame."
+files = ["PostEffect_AdjustScreen.fxo"]
+
+[[mod]]
+id = "shader-ssao"
+type = "shader-replace"
+enabled = true
+title = "SSAO - modern occlusion + range check"
+desc = "Stronger contact occlusion, depth range-check to stop distant background darkening foreground (kills halos), smoother falloff. Existing sample kernel/preshader kept."
+files = ["PostEffect_SSAO.fxo"]
+
+[[mod]]
+id = "shader-lightscattering"
+type = "shader-replace"
+enabled = true
+title = "LightScattering (god rays) - smoother decay + warm tint"
+desc = "Improved sample decay/weights for smoother rays, subtle warm tint on scattered light, clamped to avoid over-bright bloom."
+files = ["PostEffect_LightScattering.fxo"]
+
+# --- object MODEL shaders (props / buildings / weapons - no skinning; opt-in, test) ---
+[[mod]]
+id = "shader-object-static-diffuse"
+type = "shader-replace"
+enabled = false
+title = "NoChar_Def - modern static-model lighting"
+desc = "Half-lambert diffuse wrap, richer (hemispheric) ambient, subtle Fresnel rim to separate models from the background. Static (non-character) props/buildings/weapons."
+files = ["NoChar_Def.fxo"]
+
+[[mod]]
+id = "shader-object-static-specular"
+type = "shader-replace"
+enabled = false
+title = "NoChar_Spec - modern static-model specular"
+desc = "Energy-conserving normalized Blinn-Phong specular, Fresnel-modulated intensity, tighter/brighter highlights."
+files = ["NoChar_Spec.fxo"]
+
+[[mod]]
+id = "shader-object-default"
+type = "shader-replace"
+enabled = false
+title = "Rag2ObjectShader_Default - modern object lighting"
+desc = "Half-lambert wrap, better ambient, subtle Fresnel rim, richer colour response for world objects."
+files = ["Rag2ObjectShader_Default.fxo"]
+
+[[mod]]
+id = "shader-object-reflection"
+type = "shader-replace"
+enabled = false
+title = "Rag2ObjectShader_Reflection - modern fresnel reflection"
+desc = "Schlick-Fresnel-weighted environment reflection (weak head-on, strong at grazing angle) + small specular, instead of a flat reflection blend."
+files = ["Rag2ObjectShader_Reflection.fxo"]
