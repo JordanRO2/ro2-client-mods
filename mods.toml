@@ -188,7 +188,7 @@ files = ["PostEffect_SSAO.fxo"]
 [[mod]]
 id = "shader-lightscattering"
 type = "shader-replace"
-enabled = true
+enabled = false
 title = "LightScattering (god rays) - smoother decay + warm tint"
 desc = "Improved sample decay/weights for smoother rays, subtle warm tint on scattered light, clamped to avoid over-bright bloom."
 files = ["PostEffect_LightScattering.fxo"]
