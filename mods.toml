@@ -254,6 +254,20 @@ files = ["Rag2ObjectShader_VCAB1_Glow.fxo"]
 id = "shader-char-outline"
 type = "shader-replace"
 enabled = true
-title = "Character outline (PS-splice, Char_Default TEST) - dark cel silhouette, skinning-safe"
-desc = "Modern pixel shading spliced into Char_Default (ps_3_0 PS, original skinning vertex shader byte-identical -> skinning intact). Adds a dark silhouette outline (rim (1-N.V)^4 thresholded + darkened). TEST on Char_Default only; scale to all 13 char shaders if it looks right in-game."
-files = ["Char_Default.fxo"]
+title = "Character outline (PS-splice, ALL 13 char shaders) - dark cel silhouette, skinning-safe"
+desc = "Modern pixel shading spliced into every character shader (ps_3_0 PS, original skinning vertex shader byte-identical -> skinning intact). Adds a dark silhouette outline (rim (1-N.V)^4 thresholded + darkened) on players, NPCs and monsters. Faithful reproduction of each shader's lit PS + the outline term; base shading preserved."
+files = [
+  "Char_Default.fxo",
+  "Char_Dye.fxo",
+  "Char_DyeGlow.fxo",
+  "Char_DyeGlowSpec.fxo",
+  "Char_Specular.fxo",
+  "Char_Ani_Dye.fxo",
+  "Char_TexAni_Dye.fxo",
+  "Char_TexAni_DyeAni.fxo",
+  "Char_Face.fxo",
+  "Char_Hair.fxo",
+  "Char_Statue.fxo",
+  "Char_Reflection.fxo",
+  "Char_HitEffect.fxo",
+]
