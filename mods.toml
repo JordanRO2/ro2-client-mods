@@ -205,7 +205,7 @@ files = ["NoChar_Def.fxo"]
 [[mod]]
 id = "shader-object-static-specular"
 type = "shader-replace"
-enabled = false
+enabled = true
 title = "NoChar_Spec - modern static-model specular"
 desc = "Energy-conserving normalized Blinn-Phong specular, Fresnel-modulated intensity, tighter/brighter highlights."
 files = ["NoChar_Spec.fxo"]
