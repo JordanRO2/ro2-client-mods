@@ -225,3 +225,27 @@ enabled = true
 title = "Rag2ObjectShader_Reflection - modern fresnel reflection"
 desc = "Schlick-Fresnel-weighted environment reflection (weak head-on, strong at grazing angle) + small specular, instead of a flat reflection blend."
 files = ["Rag2ObjectShader_Reflection.fxo"]
+
+[[mod]]
+id = "shader-object-vcab"
+type = "shader-replace"
+enabled = true
+title = "Rag2ObjectShader_VCAB - view-stable light-wrap (vertex-colour objects)"
+desc = "Half-lambert light-wrap + ambient richness on vertex-colour-ambient-baked objects (no reflection - no env map). View-independent; removed the original view-dependent _S rim."
+files = ["Rag2ObjectShader_VCAB.fxo"]
+
+[[mod]]
+id = "shader-object-vcab-glow"
+type = "shader-replace"
+enabled = true
+title = "Rag2ObjectShader_VCAB_Glow - PBR reflection + boosted glow"
+desc = "View-stable half-lambert diffuse + PBR-lite gloss-driven env reflection + emissive glow output x1.7 (stronger bloom on glowing parts)."
+files = ["Rag2ObjectShader_VCAB_Glow.fxo"]
+
+[[mod]]
+id = "shader-object-vcab1-glow"
+type = "shader-replace"
+enabled = true
+title = "Rag2ObjectShader_VCAB1_Glow - PBR reflection + boosted glow"
+desc = "Same as VCAB_Glow for the VCAB1 detail-blend variant: view-stable diffuse + PBR-lite reflection + glow x1.7."
+files = ["Rag2ObjectShader_VCAB1_Glow.fxo"]
