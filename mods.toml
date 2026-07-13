@@ -51,10 +51,10 @@ fix_ids = ["texpool_world_default", "geopool_static_default", "cache_retention_3
 [[mod]]
 id = "exe-quality-vram"
 type = "exe"
-enabled = false
-title = "Visual quality (uses more VRAM)"
-desc = "Full-resolution textures (mip-skip 0), 2048 shadow maps, 16x anisotropic filtering, keep high-quality shaders at far/mid LOD, max view distance."
-fix_ids = ["tex_force_max_detail", "shadowmap_2048", "anisotropic_filtering", "max_lod_far", "max_lod_mid", "max_view_distance"]
+enabled = true
+title = "Native quality: 16x anisotropic + full-res textures + max LOD (GPU-side, near-free)"
+desc = "16x anisotropic filtering (crisp textures at grazing angles) + full-resolution textures (mip-skip 0) + keep high-quality shaders at far/mid LOD. All GPU-side and view-independent -> near-free on this CPU-bound client. (shadowmap_2048 excluded: byte-mismatch on this build; max_view_distance excluded: adds draw calls = CPU cost.)"
+fix_ids = ["anisotropic_filtering", "tex_force_max_detail", "max_lod_far", "max_lod_mid"]
 
 [[mod]]
 id = "exe-efficiency-fps"
