@@ -38,7 +38,7 @@ type = "exe"
 enabled = true
 title = "Crash/stability guards + Large-Address-Aware (safe defaults)"
 desc = "LAA 2->4 GB address space (stops the long-session OOM crash cascade) + dungeon-enter null-deref + 34 RMI/UI null-vtable-call crash guards. All same-length, self-verifying inline patches."
-fix_ids = ["laa", "dungeon_enter_nullderef", "send_equip_nullvcall", "ui_send_nullvcall_6b5110", "ui_send_nullvcall_7099f0", "ui_send_nullvcall_6a55f0", "ui_msg_nullvcall_7726f0", "rmi_nullvcall_guards"]
+fix_ids = ["laa", "dungeon_enter_nullderef", "send_equip_nullvcall", "ui_send_nullvcall_6b5110", "ui_send_nullvcall_7099f0", "ui_send_nullvcall_6a55f0", "ui_msg_nullvcall_7726f0", "rmi_nullvcall_guards", "effect_const_null_getter"]
 
 [[mod]]
 id = "exe-memory-oom"

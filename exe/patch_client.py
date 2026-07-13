@@ -844,6 +844,33 @@ FIXES = [
         ),
         apply=lambda d: apply_rmi_nullvcall_guards(d),
     ),
+
+    Fix(
+        id="effect_const_null_getter",
+        module="stability",
+        enabled=True,
+        title="NiD3DXEffectShader::ProcessShaderConstant: null-safe the constant-source getter (crash guard)",
+        why=(
+            "SYMPTOM  : crash in the render thread while applying an effect's shader constants\n"
+            "           (Render_GameWorld -> NiD3DXEffectShader::ProcessShaderConstant @0xB9CE18).\n"
+            "ROOT     : sub_BA13A0 is a generic accessor `return this[6]` (this+0x18). In the\n"
+            "           ProcessShaderConstant semantic switch (this[22]), cases 8 and 0xB deref\n"
+            "           the constant's SOURCE object (a2[2]) through this getter WITHOUT a null\n"
+            "           check. When the source is null -- e.g. a shader samples a texture/resource\n"
+            "           the rendered object does not provide, like an EnvironmentMap on a\n"
+            "           non-reflective object -- `mov eax,[eax+0x18]` reads address 0x18 -> AV.\n"
+            "FIX      : make the getter null-safe: `if(this) return this[6]; else return 0`. The\n"
+            "           downstream `if(v85)` then just skips the unset constant, harmless. A\n"
+            "           same-length 17-byte rewrite (test ecx,ecx; jz +ret0; mov eax,[ecx+18];\n"
+            "           ret; xor eax,eax; ret + NOP pad). The 9 other callers pass a valid this,\n"
+            "           so they behave exactly as before.\n"
+            "EVIDENCE : live crash EIP 0xBA13AA `mov eax,[eax+0x18]` with eax(this)=0; caller\n"
+            "           0xB9CE18 case 8; live-patched the getter and the assembly verified clean.\n"
+            "RISK     : low. A null constant-source now yields 'no value' instead of a crash."
+        ),
+        apply=lambda d: patch_at_va(d, 0xBA13A0, "558bec51894dfc8b45fc8b40188be55dc3",
+                                       "85c974048b4118c333c0c3909090909090"),
+    ),
     Fix(
         id="cf_null_guards",
         module="stability",
