@@ -188,9 +188,9 @@ files = ["PostEffect_SSAO.fxo"]
 [[mod]]
 id = "shader-lightscattering"
 type = "shader-replace"
-enabled = false
-title = "LightScattering (god rays) - smoother decay + warm tint"
-desc = "Improved sample decay/weights for smoother rays, subtle warm tint on scattered light, clamped to avoid over-bright bloom."
+enabled = true
+title = "LightScattering (god rays) - inverse-square envelope + screen composite"
+desc = "Inverse-square radial shaft envelope (rcp(1+3r^2), can only dim) folded in before the 0.15 clamp, soft-add (screen) composite over the scene, sub-LSB dither on the glow. Off-screen-sun gate preserved."
 files = ["PostEffect_LightScattering.fxo"]
 
 # --- object MODEL shaders (props / buildings / weapons - no skinning; opt-in, test) ---
@@ -253,21 +253,15 @@ files = ["Rag2ObjectShader_VCAB1_Glow.fxo"]
 [[mod]]
 id = "shader-char-outline"
 type = "shader-replace"
+enabled = false
+title = "MULTIPASS DIAGNOSTIC (Char_Dye) - pass1 = red model shifted right; both render? or only last?"
+desc = "Faithful full-effect recompile of every character shader via the fixed decompiler (skinning bone-array stride-3 + transform-matrix column_major orientation both corrected). NO outline yet - this validates that a decompiled+recompiled char effect renders + skins correctly in-game. Once confirmed, the real UTS2-style inverted-hull outline pass (skinned-normal expansion + Cull Front) is added to the VS."
+files = ["Char_Dye.fxo"]
+
+[[mod]]
+id = "shader-char-toon"
+type = "shader-replace"
 enabled = true
-title = "Character outline (PS-splice, ALL 13 char shaders) - dark cel silhouette, skinning-safe"
-desc = "Modern pixel shading spliced into every character shader (ps_3_0 PS, original skinning vertex shader byte-identical -> skinning intact). Adds a dark silhouette outline (rim (1-N.V)^4 thresholded + darkened) on players, NPCs and monsters. Faithful reproduction of each shader's lit PS + the outline term; base shading preserved."
-files = [
-  "Char_Default.fxo",
-  "Char_Dye.fxo",
-  "Char_DyeGlow.fxo",
-  "Char_DyeGlowSpec.fxo",
-  "Char_Specular.fxo",
-  "Char_Ani_Dye.fxo",
-  "Char_TexAni_Dye.fxo",
-  "Char_TexAni_DyeAni.fxo",
-  "Char_Face.fxo",
-  "Char_Hair.fxo",
-  "Char_Statue.fxo",
-  "Char_Reflection.fxo",
-  "Char_HitEffect.fxo",
-]
+title = "Character toon / realistic shading (live-tunable, all 13 char shaders)"
+desc = "PS-splice into every char lit pixel shader (all VS blobs byte-identical -> GPU skinning intact; blobs grown in-place via psplice growsplice since the toon PS is bigger than some originals). UTS2-style stepped-shade toon + Blinn high-color + rim + saturation over the existing dye/dark-map/fog, blendable toon<->realistic, all driven LIVE by the DLL via ps_3_0 registers c220-c223 (effect CTAB tops at c15, never clobbered). Registers 0 (DLL not pushing) => master enable 0 => byte-identical to the stock ramp. No ddx/ddy ink outline (it faceted the model). Src: shaders/src/Char_*_ps.hlsl."
+files = ["Char_Default.fxo", "Char_Dye.fxo", "Char_DyeGlow.fxo", "Char_DyeGlowSpec.fxo", "Char_Specular.fxo", "Char_Ani_Dye.fxo", "Char_TexAni_Dye.fxo", "Char_TexAni_DyeAni.fxo", "Char_Face.fxo", "Char_Hair.fxo", "Char_Statue.fxo", "Char_Reflection.fxo", "Char_HitEffect.fxo"]
