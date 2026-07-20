@@ -60,14 +60,19 @@ float g_OutlineStrength = 0.8;  // rim opacity / strength (0 = off .. 1 = full)
 float g_OutlineTint = 0.35;  // rim brightness vs subject (0 = black, 1 = full colour)
 float g_OutlineEnable = 1.0;  // mod-menu toggle (0/1), set via ID3DXEffect::SetFloat
 // --- NEW live-tunable params (bare floats, no semantic; the DLL SetFloats them) ---
-float g_OutlineCutoutSkip = 0.0;    // 0..1  skip internal alpha-test cutout edges (hair/foliage):
                                     //       gates on the gap RELATIVE to subject depth, so only real
                                     //       silhouettes (big relative gap) survive. 0 = off (rim all edges)
-#define OUTLINE_CUT_SHARP 8.0       // cutout-skip ramp hardness
-float g_OutlineDistanceFade = 0.0;  // 0..1  fade (OPACITY) the outline on distant subjects (0 = same at all depths)
-#define OUTLINE_DIST_SCALE 16.0     // distance curve scale (larger = reaches farther) - shared by fade + thickness
-float g_OutlineDistThick = 0.0;     // 0..1  scale THICKNESS by distance: near = full (max), far = thin (0 = uniform)
-#define OUTLINE_DIST_THICK_FLOOR 0.30  // far subjects keep at least this fraction of the thickness
+// SIZE vs DISTANCE, as an explicit NEAR/FAR range. Both are in normalised depth-texture units
+// (0 = at the camera, 1 = far plane), recovered from the inverse depth by undoing OLIN.
+//   d <= Near          -> full Size
+//   Near < d < Far     -> linear taper
+//   d >= Far           -> radius collapses, every tap hits the centre texel, no outline
+// Expressed as two distances rather than one "amount" because the useful question is WHERE the
+// outline should start shrinking and WHERE it should be gone -- an amount cannot say either.
+// (The old fixed OUTLINE_DIST_SCALE = 16 is why it died almost on top of the camera: it hit
+// ~30% thickness by d = 0.05.)
+float g_OutlineDistNear = 0.10;   // full Size up to here
+float g_OutlineDistFar  = 0.80;   // fully gone by here
 // DISTANCE UNIFORM: keep the outline equally solid at any range. (This is the screen-space
 // outline, i.e. the post-process silhouette edge -- NOT the per-material fresnel rim light in
 // the Char_* shaders. The _rim* identifiers below are legacy naming for the outline's colour.)
@@ -79,7 +84,6 @@ float g_OutlineDistThick = 0.0;     // 0..1  scale THICKNESS by distance: near =
 // The RELATIVE gap (gap / subject depth) IS scale-invariant -- a silhouette against distant
 // background reads ~1 at any range -- so blending the test toward the relative form holds the
 // outline solid far away. 0 = stock absolute test, 1 = fully distance-invariant.
-float g_OutlineDistUniform = 0.0;
 #define OUTLINE_REL_K     140.0     // relative-gap threshold per unit of g_OutlineThreshold (0.0025*140 = 0.35)
 #define OUTLINE_REL_SHARP 8.0       // relative-gap ramp hardness
 float g_OutlineColorR = 1.0;        // solid rim colour R (used when ColorMix > 0)
@@ -1240,15 +1244,18 @@ float4 Shader0(PS_IN_Shader0 i) : COLOR
     float  _oCl = OLIN(_ouv);             // center linear depth (LARGE=near, SMALL=far)
     // base tap radius (= max thickness)
     float  ex0 = _ots.x * g_OutlineThickness, ey0 = _ots.y * g_OutlineThickness, l;
-    // DISTANCE THICKNESS: cheap 4-tap probe at base radius finds the nearest subject
-    // depth (_pN), then scale the ring radius so NEAR subjects get full thickness and
-    // FAR subjects a thinner rim. _distT = 1 when g_OutlineDistThick = 0 (uniform).
+    // SIZE FALLOFF: cheap 4-tap probe at base radius finds the nearest subject depth (_pN),
+    // then scale the ring radius so NEAR subjects get the full thickness and FAR ones taper
+    // to nothing. No floor: at the far end the radius collapses, every tap lands on the
+    // centre texel, _oEdge = 0 and the outline is simply absent.
     float _pN = _oCl;
     _pN = max(_pN, OLIN(_ouv+float2( ex0,0.0)));
     _pN = max(_pN, OLIN(_ouv+float2(-ex0,0.0)));
     _pN = max(_pN, OLIN(_ouv+float2(0.0, ey0)));
     _pN = max(_pN, OLIN(_ouv+float2(0.0,-ey0)));
-    float _distT = lerp(1.0, max(OUTLINE_DIST_THICK_FLOOR, saturate(_pN * OUTLINE_DIST_SCALE)), g_OutlineDistThick);
+    // undo OLIN to get back to normalised depth-texture units, then ramp Near -> Far
+    float _pD    = (1.0 / max(_pN, 1e-6) - 4.0) * 0.001;
+    float _distT = saturate((g_OutlineDistFar - _pD) / max(g_OutlineDistFar - g_OutlineDistNear, 1e-4));
     float  ex = ex0 * _distT, ey = ey0 * _distT;
     float  _oEdge = 0.0;                  // directional edge (only NEARER neighbors count)
     float  _oBest = _oCl;                 // nearest (max linDepth) neighbor found so far
@@ -1266,25 +1273,14 @@ float4 Shader0(PS_IN_Shader0 i) : COLOR
     // _relGap = gap RELATIVE to the subject's own depth. Scale-invariant: ~1 for a real
     // silhouette against distant background at ANY range, << 1 for internal cutout edges.
     float _relGap = _oEdge / max(_oBest, 1e-6);
-    // ABSOLUTE test (stock). Note this is why Threshold feels dead: for a near silhouette
-    // _oEdge (~0.2) dwarfs the slider's whole 0..0.01 span, and SHARP is 600, so the term
-    // saturates to 1 across the entire travel. It also collapses to 0 at range.
-    float _edgeAbs = saturate((_oEdge - g_OutlineThreshold) * OUTLINE_SHARP);
-    // RELATIVE test: the same Threshold re-expressed in relative units (0.0025 -> 0.35). Here
-    // the slider's travel spans "outline everything" .. "outline nothing" and, because the
-    // relative gap does not shrink with range, the result is identical near and far.
-    float _edgeRel = saturate((_relGap - g_OutlineThreshold * OUTLINE_REL_K) * OUTLINE_REL_SHARP);
-    float _edge = lerp(_edgeAbs, _edgeRel, g_OutlineDistUniform);
+    // RELATIVE test. The stock ABSOLUTE form (saturate((_oEdge - thr) * OUTLINE_SHARP)) is not
+    // used any more: for a near silhouette _oEdge (~0.2) dwarfs the Threshold slider's whole
+    // span times SHARP 600, so it saturated across the entire travel (Threshold did nothing),
+    // and it collapsed to 0 at range. Against _relGap the same Threshold, rescaled by
+    // OUTLINE_REL_K, spans "outline everything" .. "outline nothing" and reads the same at any
+    // distance -- distance is handled deliberately by the Near/Far range above, not by decay.
+    float _edge = saturate((_relGap - g_OutlineThreshold * OUTLINE_REL_K) * OUTLINE_REL_SHARP);
     _edge *= g_OutlineEnable;
-    // CUTOUT SKIP: internal alpha-test cutout edges (hair, foliage, capes) have a
-    // nearer neighbour but only a SMALL gap RELATIVE to the subject's own depth,
-    // whereas a real silhouette (subject vs far background) has a gap ~= the subject
-    // depth (relative gap ~1). Gate on the relative gap so internal edges drop out as
-    // g_OutlineCutoutSkip rises; 0 keeps the gate wide open (== old behaviour).
-    _edge *= saturate(1.0 - (g_OutlineCutoutSkip - _relGap) * OUTLINE_CUT_SHARP);
-    // DISTANCE FADE: _oBest is the subject's linear depth (LARGE=near, SMALL=far).
-    // At g_OutlineDistanceFade=0 -> no fade; higher -> distant subjects fade out.
-    _edge *= lerp(1.0, saturate(_oBest * OUTLINE_DIST_SCALE), g_OutlineDistanceFade);
     // subject colour: sample the scene colour toward the nearest foreground neighbor.
     // Colour UV is i.texcoord; depth UV is i.texcoord1 -- both are full-screen post
     // UVs, so the same texel offset (_oOff = vViewDimensions*g_OutlineThickness) applies to both.
