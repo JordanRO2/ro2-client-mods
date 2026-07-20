@@ -68,6 +68,15 @@ float g_OutlineDistanceFade = 0.0;  // 0..1  fade (OPACITY) the outline on dista
 #define OUTLINE_DIST_SCALE 16.0     // distance curve scale (larger = reaches farther) - shared by fade + thickness
 float g_OutlineDistThick = 0.0;     // 0..1  scale THICKNESS by distance: near = full (max), far = thin (0 = uniform)
 #define OUTLINE_DIST_THICK_FLOOR 0.30  // far subjects keep at least this fraction of the thickness
+// DISTANCE REACH: how far the OUTLINE survives. (This is the screen-space outline, i.e. the
+// post-process silhouette edge -- NOT the per-material fresnel rim light in the Char_* shaders.
+// The _rim* identifiers below are legacy naming for the outline's colour.)
+// The raw depth gap shrinks with distance (the linearised depth compresses far), so a distant
+// silhouette falls under a FIXED threshold and the outline dies early. Scaling the threshold
+// with the subject's own depth keeps far edges detectable. 0 = stock (outline fades out with
+// range), 1 = threshold fully proportional to depth (reaches as far as the depth buffer resolves).
+float g_OutlineDistReach = 0.0;
+#define OUTLINE_DEPTH_INV 4.0       // 1 / near linDepth (OLIN at depth 0 = 1/4) -> normalises _oBest to ~1 up close
 float g_OutlineColorR = 1.0;        // solid rim colour R (used when ColorMix > 0)
 float g_OutlineColorG = 1.0;        // solid rim colour G
 float g_OutlineColorB = 1.0;        // solid rim colour B
@@ -1249,7 +1258,12 @@ float4 Shader0(PS_IN_Shader0 i) : COLOR
     l = OLIN(_ouv+float2(-ex, ey)); _oEdge=max(_oEdge,l-_oCl); if(l>_oBest){_oBest=l;_oOff=float2(-ex, ey);}
     l = OLIN(_ouv+float2(-ex,-ey)); _oEdge=max(_oEdge,l-_oCl); if(l>_oBest){_oBest=l;_oOff=float2(-ex,-ey);}
     // hard edge factor (outside-only: >0 only where a nearer neighbor exists)
-    float _edge = saturate((_oEdge - g_OutlineThreshold) * OUTLINE_SHARP);
+    // Distance-compensated threshold: _oBest is the subject's linear depth (LARGE=near,
+    // SMALL=far), so scaling the threshold by it lowers the bar exactly as far as the gap
+    // shrinks -> the outline keeps resolving at range instead of dropping out. Reach 0 leaves
+    // the stock fixed threshold untouched.
+    float _thr  = g_OutlineThreshold * lerp(1.0, saturate(_oBest * OUTLINE_DEPTH_INV), g_OutlineDistReach);
+    float _edge = saturate((_oEdge - _thr) * OUTLINE_SHARP);
     _edge *= g_OutlineEnable;
     // CUTOUT SKIP: internal alpha-test cutout edges (hair, foliage, capes) have a
     // nearer neighbour but only a SMALL gap RELATIVE to the subject's own depth,
