@@ -4010,7 +4010,9 @@ FIXES = [
     Fix(
         id="effect_const_null_getter",
         module="stability",
-        enabled=True,
+        enabled=False,   # SUPERSEDED: minidump_null_guards_2026_08 already patches VA 0xBA13A0.
+        #                 Applying both fails -- the second finds the first's jmp instead of
+        #                 stock bytes. Kept defined so older mods.toml ids still resolve.
         title="NiD3DXEffectShader::ProcessShaderConstant: null-safe the constant-source getter (crash guard)",
         why=(
             "SYMPTOM  : crash in the render thread while applying an effect's shader constants\n"
