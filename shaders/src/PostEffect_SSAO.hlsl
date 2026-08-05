@@ -53,11 +53,11 @@ sampler_state
 //  and the rim is painted with the subject's own colour, darkened by
 //  g_OutlineTint (red char -> dark-red rim, blue char -> dark-blue rim).
 //  --- TUNING CONSTANTS (edit these) ---
-float g_OutlineThickness = 1.5;  // rim tap radius / thickness ("Size"), in pixels
-float g_OutlineThreshold = 0.0025;  // min NEARER-neighbor linDepth gap = an edge
+float g_OutlineThickness = 1.0;  // rim tap radius / thickness ("Size"), in pixels
+float g_OutlineThreshold = 0.0;  // min NEARER-neighbor linDepth gap = an edge
 #define OUTLINE_SHARP   600.0   // edge ramp hardness (large = hard/binary line)
 float g_OutlineStrength = 0.8;  // rim opacity / strength (0 = off .. 1 = full)
-float g_OutlineTint = 0.35;  // rim brightness vs subject (0 = black, 1 = full colour)
+float g_OutlineTint = 0.5;  // rim brightness vs subject (0 = black, 1 = full colour)
 float g_OutlineEnable = 1.0;  // mod-menu toggle (0/1), set via ID3DXEffect::SetFloat
 // --- NEW live-tunable params (bare floats, no semantic; the DLL SetFloats them) ---
                                     //       gates on the gap RELATIVE to subject depth, so only real
@@ -71,8 +71,8 @@ float g_OutlineEnable = 1.0;  // mod-menu toggle (0/1), set via ID3DXEffect::Set
 // outline should start shrinking and WHERE it should be gone -- an amount cannot say either.
 // (The old fixed OUTLINE_DIST_SCALE = 16 is why it died almost on top of the camera: it hit
 // ~30% thickness by d = 0.05.)
-float g_OutlineDistNear = 0.10;   // full Size up to here
-float g_OutlineDistFar  = 0.80;   // fully gone by here
+float g_OutlineDistNear = 0.0;   // full Size up to here
+float g_OutlineDistFar  = 0.2;   // fully gone by here
 // DISTANCE UNIFORM: keep the outline equally solid at any range. (This is the screen-space
 // outline, i.e. the post-process silhouette edge -- NOT the per-material fresnel rim light in
 // the Char_* shaders. The _rim* identifiers below are legacy naming for the outline's colour.)

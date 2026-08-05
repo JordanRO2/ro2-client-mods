@@ -33,8 +33,20 @@ float4 g_toon0 : register(c220); // x=enable       y=realisticMix z=sh1Step   w=
 float4 g_toon1 : register(c221); // x=sh2Step      y=sh2Feather   z=rimStr     w=rimWidth
 float4 g_toon2 : register(c222); // xyz=shade1Tint (rgb)          w=specStr
 float4 g_toon3 : register(c223); // xyz=shade2Darken (rgb)        w=saturation
-float4 g_mat0 : register(c218); // Metal: gloss, roughness, metallic, warmShadow
-float4 g_mat1 : register(c219); // Metal: rimColor.rgb * strength, rimWidth
+// g_mat0 (c218: gloss/roughness/metallic/warmShadow) is no longer read here — see the
+// specular note in main(). Only the rim pair below is used.
+// MATERIAL CLASS DELIBERATELY COLLAPSED TO ONE PAIR (c216/c217).
+// The engine picks which Char_* shader a mesh gets from its NIF material name, and we do
+// NOT control or reliably predict that mapping -- a neck can be skin on one model and a
+// collar on another. While each class read its own constants (Face c212 / Hair c214 /
+// Skin c216 / Specular c218) two adjacent meshes could differ by 6.9x in specular
+// strength (0.55 vs 0.08), by metallic tint (0.45 vs 0.00) and by warm-shadow (0.45 vs
+// 0.00 -- which tints SHADOWED pixels, so it shows even with no highlight at all). That
+// is a per-MESH discontinuity, and it is what reads as a seam at the neck.
+// Per-texel differentiation is not lost: it moves to where it belongs, the artist's mask
+// (glow.y) and power (glow.w), which are continuous across a garment because the artist
+// authored them that way. The class multiplier was a second, redundant spread on top.
+float4 g_mat1 : register(c217); // Specular class: rimColor.rgb * strength, rimWidth
 
 struct PS_IN {
     float4 texcoord  : TEXCOORD0;   // t0 : xyz = -viewDir , w = fog factor
@@ -100,16 +112,30 @@ PS_OUT main(PS_IN i)
     float3 col   = litColor * base.xyz + env;
     float  alpha = base.w * MaterialColor.w * Extra_WeaveColor.w;
 
-    // --- additive high-color (Blinn spec) + rim, gated by master enable ---
-    float3 H       = normalize(i.texcoord.xyz + Light0_WorldViewDir.xyz);
-        // --- per-material PBR-ish layer: gloss/roughness/metallic spec + rim + warm shadow (enable-gated) ---
-    float  _pmExp  = exp2(lerp(7.0, 2.0, saturate(g_mat0.y)));        // roughness -> Blinn exp (128..4)
+    // --- fresnel rim only, gated by master enable ---
+    // REMOVED 2026-08-03 — the invented Blinn lobe. Justification from the stock blobs
+    // (scratchpad/aud2/stock__Char_Reflection__{6aedea30,82c9b7c2,8a94f3ff}.asm):
+    //   * NOT ONE of the three lit stock PS contains a `pow` instruction, and none of them
+    //     references Light0_Spec. There is no specular term in this shader, at all.
+    //   * The shine here IS the environment map: R is built from the view-space normal
+    //     (`add r2.w,r2.w,r2.w` / `mad r3.zw, r2.wzyx, -r2.w, c7.wzyx`), tiled by
+    //     ReflectionTexTiles, sampled from EnvSampler and added with weight TextureAmounts.w
+    //     (`mad r0.xyz, r4, c10.w, r0`). The effect ships TextureAmounts = 1,1,1,1.5, so that
+    //     term is strong. Laying a 2^(7-5*0.20)=64-exponent, gloss-0.55 Blinn lobe on top of
+    //     it double-counted the shininess — two competing highlights on the same surface.
+    //   * No per-texel gloss signal exists to drive a lobe from instead: the three samplers
+    //     are s0 BaseSampler, s1 EnvSampler (indexed by the REFLECTION VECTOR, not the mesh
+    //     UV, so it cannot be a mask), s2 ToonSampler. base.w is consumed as alpha. The
+    //     effect declares a GlossMap parameter but no PS here binds or samples it — if it
+    //     did there would be a fourth dcl_2d and a texld against t2; there is neither.
+    //   So option (b) is closed by the data and option (a) is the only honest fix: remove it.
+    // The fresnel rim is kept — it is driven by real per-pixel geometry (N.V), and the main
+    // stock variant 6aedea30 carries a fresnel rim of its own ((1-V.N)^4 * Light0_Diff).
+    // The warm-shadow term is also dropped: the Specular material class sets warmShadow=0.00,
+    // so it was computing a guaranteed no-op every pixel.
     float  _pmRimA = 1.0 - saturate(dot(N, i.texcoord.xyz));
     float  _pmRimW = pow(_pmRimA, exp2(lerp(3.0, 0.0, g_mat1.w))) * saturate(hl);
-    float  _pmSpec = pow(saturate(dot(N, H)), _pmExp) * g_mat0.x;   // gloss = strength
-    col = lerp(col, col * float3(1.15, 0.93, 0.80), g_mat0.w * saturate(1.0 - hl) * g_toon0.x); // warm shadow
-    float3 _pmTint = lerp(lightColor, col, saturate(g_mat0.z));     // metallic -> tint spec by surface
-    col += (_pmSpec * _pmTint + g_mat1.xyz * _pmRimW) * g_toon0.x;
+    col += g_mat1.xyz * _pmRimW * g_toon0.x;
 
     // --- saturation grade (enable-gated so default sat effectively = 1) ---
     float sat    = lerp(1.0, g_toon3.w, g_toon0.x);

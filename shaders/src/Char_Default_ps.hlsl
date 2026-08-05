@@ -8,6 +8,52 @@
 // IDirect3DDevice9::SetPixelShaderConstantF(220,...) each frame. When these registers are 0
 // (DLL not pushing yet), master enable = 0 and the output is BYTE-IDENTICAL to the original
 // ramp toon -> safe drop-in / A-B toggle.
+//
+// ============================================================================================
+// SPECULAR: corrected 2026-08-03. The previous note that "Char_Default has no mask map, so it
+// computes no specular and any lobe is invented" is WRONG, and the disassembly says so.
+//
+// Evidence, from the PRISTINE stock blobs (scratchpad/aud2/stock__Char_Default__*.asm):
+//   * Char_Default ships THREE distinct lit PS. Two of them — 0d04e2ae (51 slots) and
+//     1c349e4c (54 slots) — contain this exact tail:
+//         add   r4.xyz, t0, c8        ; H = V + L        (c8 = Light0_WorldViewDir)
+//         nrm   r5.xyz, r4
+//         dp3   r0.w,  r5, r2         ; H.N              (r2 = normalize(t1))
+//         max   r1.w,  r0.w, c12.x    ; max(H.N, 0)
+//         pow   r0.w,  r1.w, c13.y    ; ^16
+//         mul   r0.w,  r0.w, c13.z    ; *0.2
+//         mul   r2.xyz, r0.w, r1      ; * (litColor*col)
+//         mad_sat r1.xyz, r1, r0.w, r0            ; branch A: no Light0_Spec
+//         mad_sat r0.xyz, r2, c7,  r0             ; branch B: * Light0_Spec (c7)
+//         cmp   r0.xyz, -c0.x, r0, r1             ; g_LightProbeMode==0 ? B : A
+//     The third (f7f847d6, 36 slots) has no pow at all. The 6-slot 28129009 is the Z-only pass.
+//   * That is BYTE-FOR-BYTE the same sequence as Char_Specular's masked lobe
+//     (stock__Char_Specular__038cdd31.asm), with only the two mask-map reads swapped for
+//     literals:  exponent glow.w*64 -> 16,  mask glow.y -> 0.2.
+//     So Char_Default is not "a shader without specular"; it is the SAME lighting model
+//     running on default constants because it has no mask map to read them from.
+//   * The pow here is NOT the fog term. Fog in this shader is a plain lrp against c5.
+//
+// What was actually wrong with the old code was the TINT, not the existence of the lobe:
+//   old:   col += pow(N.H, 2^lerp(7,2,rough)) * gloss * lerp(lightColor, col, metallic)
+//          with the Skin class fixed at gloss 0.08 / rough 0.62 / metallic 0.00, i.e. a
+//          neutral highlight of constant intensity laid over dark albedo -> plastic wrap.
+//   stock: col += pow(N.H, 16) * 0.2 * (litColor * col)
+//          the lobe inherits the surface's own lit albedo, so dark matte gear gets a dark
+//          highlight. That albedo modulation is per-texel real data (BaseSampler), not a
+//          heuristic, and it is the game's own choice.
+// Fix: drop the invented lobe, restore the stock one verbatim (ungated — see below).
+//
+// Side effect worth knowing: gating the lobe behind g_toon0.x meant that at enable=0 this
+// shader was stock MINUS stock's specular, so the advertised "byte-identical A/B fallback"
+// was not true. It is true again now.
+//
+// UNRESOLVED (deliberately neutralised, not answered): whether the engine ever writes a
+// non-zero Light0_Spec at runtime. The effect's stored default is 0,0,0,0 — but so is
+// Light0_Diff's, and that one demonstrably drives the visible rim, so a 0 default proves
+// nothing. By restoring BOTH stock branches and the stock select, we render whatever stock
+// renders either way; no behaviour of ours depends on the answer.
+// ============================================================================================
 float4 Light0_PreCalcLightColor;
 float3 g_DarkMapColorForChar;
 int    g_LightProbeMode;
@@ -17,6 +63,7 @@ int    g_iHighlightOutline;
 float3 Light0_WorldViewDir;
 float  fSHPower;
 float4 Light0_Diff;
+float4 Light0_Spec;                 // restored: the stock PS uses this (c7 in the stock blob)
 float4 MaterialColor;
 float3 g_FogColor;
 sampler2D BaseSampler : register(s0);
@@ -27,8 +74,11 @@ float4 g_toon0 : register(c220); // x=enable       y=realisticMix z=sh1Step   w=
 float4 g_toon1 : register(c221); // x=sh2Step      y=sh2Feather   z=rimStr     w=rimWidth
 float4 g_toon2 : register(c222); // xyz=shade1Tint (rgb)          w=specStr
 float4 g_toon3 : register(c223); // xyz=shade2Darken (rgb)        w=saturation
-float4 g_mat0 : register(c216); // Cloth: gloss, roughness, metallic, warmShadow
-float4 g_mat1 : register(c217); // Cloth: rimColor.rgb * strength, rimWidth
+// c216/c217 = the "Skin" material class (DefaultRag2ShaderSkin, ~794 meshes).
+// Only .w of g_mat0 (warmShadow) is still read — .x/.y/.z (gloss/roughness/metallic) drove
+// the invented specular lobe that was removed; specular now comes from the stock math.
+float4 g_mat0 : register(c216); // Skin: [gloss, roughness, metallic UNUSED], warmShadow
+float4 g_mat1 : register(c217); // Skin: rimColor.rgb * strength, rimWidth
 
 struct PS_IN {
     float4 texcoord  : TEXCOORD0;   // t0 (view dir, .w = fog)
@@ -97,26 +147,71 @@ PS_OUT main(PS_IN i)
     float3 colRim = rimCol * 0.4 + col;           // original additive highlight rim (0.4)
     col = (-po2 >= 0) ? colRim : col;
 
-    // --- additive high-color (Blinn spec) + rim, gated by master enable ---
-    float3 H       = normalize(i.texcoord.xyz + Light0_WorldViewDir.xyz);
-        // --- per-material PBR-ish layer: gloss/roughness/metallic spec + rim + warm shadow (enable-gated) ---
-    float  _pmExp  = exp2(lerp(7.0, 2.0, saturate(g_mat0.y)));        // roughness -> Blinn exp (128..4)
+    // ---- STOCK specular, restored verbatim (see header note) ----------------------
+    // This is the same instruction sequence as Char_Specular's masked lobe, with the
+    // two mask-map inputs replaced by the stock's own literals:
+    //     Char_Specular : pow(max(H.N,0), glow.w*64) * glow.y
+    //     Char_Default  : pow(max(H.N,0), 16       ) * 0.2
+    // and, in BOTH, the lobe is tinted by litColor*col — the surface's own lit albedo.
+    // That albedo tint is the whole reason stock matte gear does not read as plastic,
+    // and it is exactly what the removed invented lobe was missing.
+    // NOT gated by g_toon0.x: stock applies it unconditionally, so gating it is what
+    // made enable=0 differ from stock.
+    float3 specBase  = litColor * col;                                  // stock r1 = litColor * col
+    float3 H         = normalize(i.texcoord.xyz + Light0_WorldViewDir.xyz);
+    float  hn        = max(dot(H, N), 0.0);
+    float  spec      = pow(hn, 16.0) * 0.2;
+    float3 colNoTint = saturate(specBase * spec + col);                 // non-probe branch
+    float3 colSpec   = saturate(specBase * spec * Light0_Spec.xyz + col);  // probe branch
+    col = (-po0 >= 0) ? colSpec : colNoTint;
+
+    // dark-map darken + probe re-select (stock order: both come BEFORE any extra term,
+    // because the re-select restores colNoTint and would discard anything added earlier)
+    float3 dark = col * po4;
+    float3 darkMin = min(col, dark);
+    col = (-po3 >= 0) ? darkMin : col;
+    col = (-po0 >= 0) ? col : colNoTint;          // stock probe re-select (was a no-op here)
+
+    // --- fresnel rim + warm shadow, gated by master enable ---
+    // Kept: both are driven by real per-pixel geometry (N.V) / the existing shade term,
+    // and stock already carries a fresnel rim of its own (rimCol*0.4 above). The
+    // gloss/roughness/metallic channels (g_mat0.x/.y/.z) are NO LONGER read for spec —
+    // this shader has no gloss or spec-mask texture to justify them (samplers are only
+    // s0 BaseSampler + s1 ToonSampler; the effect's GlossMap param is never bound to a
+    // sampler this PS declares). Spec now comes from the stock lobe above.
     float  _pmRimA = 1.0 - saturate(dot(N, i.texcoord.xyz));
     float  _pmRimW = pow(_pmRimA, exp2(lerp(3.0, 0.0, g_mat1.w))) * saturate(hl);
-    float  _pmSpec = pow(saturate(dot(N, H)), _pmExp) * g_mat0.x;   // gloss = strength
     col = lerp(col, col * float3(1.15, 0.93, 0.80), g_mat0.w * saturate(1.0 - hl) * g_toon0.x); // warm shadow
-    float3 _pmTint = lerp(lightColor, col, saturate(g_mat0.z));     // metallic -> tint spec by surface
-    col += (_pmSpec * _pmTint + g_mat1.xyz * _pmRimW) * g_toon0.x;
+    // ---- SAME LIGHTING MODEL AS THE MASK-CARRYING CHAR SHADERS -------------------
+    // WHY THIS EXISTS: the head uses Char_Face and the body/neck uses this shader. Char_Face
+    // adds a fresnel-modulated, N.L-gated specular layer on top of its stock lobe. If this
+    // shader only carries the stock lobe, the two halves of the SAME SKIN are lit by two
+    // different models and the difference is visible as a seam at the neck -- which is exactly
+    // what the operator reported. So the model must be identical here; only the DATA differs.
+    //
+    // This shader has no mask map (samplers are s0 Base + s1 Toon only), so its authored
+    // values are the stock literals the lobe above already uses: power 16, mask 0.2. Those
+    // are the same two numbers Char_Specular reads from glow.w*64 and glow.y -- the stock
+    // sequences are otherwise byte-for-byte identical -- so using them here is restoring the
+    // artist's intent for an unmasked material, not inventing one.
+    float  _pmMask = 0.2;                                            // stock literal (= glow.y)
+    float  _pmExp  = max(16.0 * exp2(lerp(1.0, -1.0, saturate(g_mat0.y))), 1.0);  // (= glow.w*64)
+    float  _pmNdH  = max(dot(H, N), 0.0);
+    float  _pmNdL  = saturate(ndl);                                  // no highlight on the dark side
+    float  _pmVdH  = saturate(dot(normalize(i.texcoord.xyz), H));
+    float  _pmF0   = lerp(0.04, 1.0, saturate(g_mat0.z));            // dielectric 4% -> metal 100%
+    float  _pmFc   = 1.0 - _pmVdH;
+    float  _pmFc2  = _pmFc * _pmFc;
+    float  _pmFres = min(1.0 + ((1.0 - _pmF0) / _pmF0) * (_pmFc2 * _pmFc2 * _pmFc), 2.0);
+    float  _pmSpec = pow(_pmNdH, _pmExp) * _pmFres * _pmNdL * g_mat0.x * _pmMask;
+    float3 _pmTint = lerp(lightColor, col, saturate(g_mat0.z));      // metallic -> tint by surface
+    // saturate to match stock, which adds its specular with mad_sat on BOTH branches.
+    col = saturate(col + (_pmSpec * _pmTint + g_mat1.xyz * _pmRimW) * g_toon0.x);
 
     // --- saturation grade (enable-gated so default sat effectively = 1) ---
     float sat = lerp(1.0, g_toon3.w, g_toon0.x);
     float lum = dot(col, float3(0.299, 0.587, 0.114));
     col = lerp(lum.xxx, col, sat);
-
-    float3 dark = col * po4;
-    float3 darkMin = min(col, dark);
-    col = (-po3 >= 0) ? darkMin : col;
-    col = (-po0 >= 0) ? col : col;                // (probe re-select, matches original)
 
     // (No ddx/ddy ink outline here — screen-space normal derivatives faceted the
     //  model per-triangle and darkened edges. Outlines come from the SSAO post-process.)

@@ -12,9 +12,14 @@
 // Statue note: after lighting, the shader collapses colour to luminance * stone tint
 // (0.5,0.45,0.37). The toon double-shade bands the *brightness* that feeds that
 // luminance, but the shade TINTS (g_toon2/g_toon3 rgb) are folded to luminance by the
-// stone step, so only their brightness survives. The additive spec/rim + saturation
-// grade are applied to the FINAL stone colour so their light-coloured highlights stay
-// visible instead of being desaturated by the stone conversion.
+// stone step, so only their brightness survives. Only the saturation grade is applied to
+// the FINAL stone colour.
+//
+// 2026-08-03: the additive spec/rim layer that used to sit here was REMOVED. It was applied
+// after the stone conversion precisely so that its highlights would survive being
+// desaturated — which is another way of saying it was overriding the effect's defining
+// operation. The stock PS does not even declare the view-direction interpolant. Full
+// argument and a one-line revert recipe are in main().
 
 float4 Light0_PreCalcLightColor;   // preshader: min(1,max(0,...))  (probe light colour)
 int    g_LightProbeMode;           // preshader: g_LightProbeMode^2  (probe cmp select)
@@ -30,8 +35,8 @@ float4 g_toon0 : register(c220); // x=enable       y=realisticMix z=sh1Step   w=
 float4 g_toon1 : register(c221); // x=sh2Step      y=sh2Feather   z=rimStr     w=rimWidth
 float4 g_toon2 : register(c222); // xyz=shade1Tint (rgb)          w=specStr
 float4 g_toon3 : register(c223); // xyz=shade2Darken (rgb)        w=saturation
-float4 g_mat0 : register(c218); // Metal: gloss, roughness, metallic, warmShadow
-float4 g_mat1 : register(c219); // Metal: rimColor.rgb * strength, rimWidth
+// g_mat0/g_mat1 (c218/c219) are deliberately NOT declared here any more: this shader adds no
+// specular, rim or warm-shadow term. See the block comment in main() for why.
 
 struct PS_IN {
     float4 texcoord  : TEXCOORD0;   // t0 : view dir (-normalize(viewPos)); original PS ignored it,
@@ -92,16 +97,34 @@ PS_OUT main(PS_IN i)
     float lum = texColor.x * 0.3 + texColor.y * 0.6 + texColor.z * 0.1;
     float3 col = lum * float3(0.5, 0.45, 0.37);
 
-    // --- additive high-color (Blinn spec) + rim, gated by master enable ---
-    float3 H       = normalize(i.texcoord.xyz + Light0_WorldViewDir.xyz);
-        // --- per-material PBR-ish layer: gloss/roughness/metallic spec + rim + warm shadow (enable-gated) ---
-    float  _pmExp  = exp2(lerp(7.0, 2.0, saturate(g_mat0.y)));        // roughness -> Blinn exp (128..4)
-    float  _pmRimA = 1.0 - saturate(dot(N, i.texcoord.xyz));
-    float  _pmRimW = pow(_pmRimA, exp2(lerp(3.0, 0.0, g_mat1.w))) * saturate(hl);
-    float  _pmSpec = pow(saturate(dot(N, H)), _pmExp) * g_mat0.x;   // gloss = strength
-    col = lerp(col, col * float3(1.15, 0.93, 0.80), g_mat0.w * saturate(1.0 - hl) * g_toon0.x); // warm shadow
-    float3 _pmTint = lerp(lightColor, col, saturate(g_mat0.z));     // metallic -> tint spec by surface
-    col += (_pmSpec * _pmTint + g_mat1.xyz * _pmRimW) * g_toon0.x;
+    // --- NO added specular / rim / warm-shadow layer here. Removed 2026-08-03. -------------
+    // The whole per-material block was deleted rather than re-tinted, because every one of
+    // its terms is view-dependent shading that this effect deliberately throws away.
+    // Evidence from the stock blob (scratchpad/aud2/stock__Char_Statue__61e95fa1.asm, 27 slots
+    // — the only lit PS; the other, 28129009 at 6 slots, is the Z-only pass):
+    //   * There is no `pow` instruction anywhere in it. No specular, no fresnel rim, no fog.
+    //   * It does not even declare t0. Its dcls are `dcl t1.xyz` (normal), `dcl t2.xy` (uv),
+    //     `dcl v0.xyz` — so the VIEW DIRECTION never reaches the stock pixel shader. Every
+    //     term we were adding (Blinn H = V+L, fresnel N.V) is a function of a vector the
+    //     stock shader does not read. That is as close to a proof of "invented" as this
+    //     material gets, and it is a control that could have failed: had t0 been declared,
+    //     a view-dependent term would at least have been arguable.
+    //   * Its last four instructions collapse the shaded colour to a single luminance
+    //     (0.3R + 0.6G + 0.1B) and multiply by the stone tint c7.wzyx = (0.5,0.45,0.37), then
+    //     write `mov r0, c6.x` (= 0) to oC1. The effect is a flat, colourless, orientation-
+    //     independent stone look by construction.
+    // The Specular material class this shader was wired to (c218/c219) is the shiniest of the
+    // four — gloss 0.55, roughness 0.20 (Blinn exponent 64), metallic 0.45, rim 0.35 at
+    // (0.95,0.97,1.00) — so a petrified character was being given a tight travelling
+    // highlight and a cool white edge glow. There is no per-texel signal to drive any of it
+    // from either: the only samplers are s0 BaseSampler and s1 ToonSampler.
+    //
+    // REVERT NOTE: this is the one place where I went past "remove the specular lobe" and
+    // also dropped the rim and warm-shadow. If the cool rim on statues was wanted as a
+    // deliberate stylistic choice, restore just these two lines — nothing else depends on it:
+    //     float _pmRimA = 1.0 - saturate(dot(N, i.texcoord.xyz));
+    //     col += g_mat1.xyz * pow(_pmRimA, exp2(lerp(3.0,0.0,g_mat1.w))) * saturate(hl) * g_toon0.x;
+    // -------------------------------------------------------------------------------------
 
     // --- saturation grade (enable-gated so default sat effectively = 1) ---
     float sat    = lerp(1.0, g_toon3.w, g_toon0.x);
