@@ -1,152 +1,161 @@
-# ro2-client-mods
+# RO2 client fixes
 
-Every modification we make to the Ragnarok Online 2 client **files** (build 303), collected as
-**selectable mods** with a single applier. Turn any subset on, apply, launch, revert — the
-original files are always backed up and every apply rebuilds from that baseline.
+Bug fixes for the Ragnarok Online 2 client, build **303 (2022-02-11)** — the last official
+release. Crashes, broken models, inverted lighting, an item that shows the wrong costume
+entirely.
 
-Anything that changes the client *at runtime* rather than on disk — the injected DLL, the
-launcher, automation — lives in `../mods-ragnarok-online-2` instead. That is the dividing line:
-**this repo touches client files; that one does not.**
+Everything here fixes the client's own **files**: the executable and the `.VDK` data archives.
+Nothing runs alongside the game, nothing hooks it at runtime, and no server is involved.
 
-Target: client **b303 (2022-02-11)**, `Rag2.exe` md5 `cbeccb38bc455e9dd88ded2b43af76fe`,
-Gamebryo / NiDX9 under DXVK.
+## Install
+
+Download the archives from the [latest release](../../releases/latest) and drop them in:
+
+```
+<client>/Data/       ITEM.VDK  ACTOR.VDK  ITEM1.VDK  DATA.VDK
+<client>/SHIPPING/   Rag2.exe
+```
+
+Back up the originals first, or keep a clean client install around — every file being replaced is
+unmodified stock, so restoring is just copying them back. Check what you downloaded against
+`MD5SUMS.txt` before installing.
+
+That is the whole procedure. If you would rather build the files yourself from your own client,
+see [Building it yourself](#building-it-yourself).
+
+---
+
+## What is fixed
+
+### Crashes and stability
+
+The stock client is a 32-bit process that is **not** large-address-aware, so it is capped at 2 GB
+of virtual address space and dies once it crosses that — typically after an hour of play or
+several zone loads. The crash wears half a dozen different faces: a write to address 0 during
+zone loading, an `int 3` inside SpeedTree's allocation-failure handler, assorted null
+dereferences. They are all the same underlying problem. The cap is lifted to 4 GB.
+
+On top of that, 35 null-check guards on paths that real minidumps showed crashing — dungeon
+entry, and a family of null vtable calls on network-message and UI handlers.
+
+### Models that render wrong
+
+**A Soulmaker's doll cast its shadow at somebody else's feet.** Of the 34 doll meshes, exactly one
+— the Ancient Warrior's and Serenia's doll — was set up for CPU skinning instead of GPU. In that
+mode the only geometry the graphics card can read holds the *bind pose*, and doll bind poses are
+authored at the character's origin rather than in the hand. Any frame drawn before the CPU
+finished deforming the mesh therefore painted a doll-shaped silhouette on the ground. Converting
+the mesh to GPU skinning removes the window entirely. **Confirmed fixed in game.**
+
+**The Hanbok (Woman) costume tore apart on ranking statues.** Same root cause, different symptom.
+The statue rendering path picks a GPU-skinning shader based on whether a mesh has a skinning
+modifier at all — never on whether that modifier is actually GPU-capable. So the CPU-skinned dress
+was handed a shader whose bone matrices were never uploaded, and it drew using whatever the
+previously drawn statue had left in those registers. The result stretched away toward another
+model. The dress is now GPU-skinned, which removes the precondition.
+
+**The Chieftain Great Sword was inside-out.** The model was authored fully inverted — both its
+triangle facing and its surface normals. Because the two agreed with each other, it was not
+obviously broken in the file; it simply faced the wrong way as a whole. Correcting only the
+triangle facing (as an earlier attempt did) fixes the silhouette and leaves the lighting reversed,
+which is exactly what it looked like. Both are corrected. Five other items share that model and
+are fixed with it.
+
+**The Odinguitar back accessory, Noel versions.** The same inversion, and the same half fix from
+that earlier attempt. The non-Noel versions measured correct and were left alone.
+
+**The Stolen Dartboard showed flowers on male humans.** Not a rendering bug at all — the flower
+umbrella asset was packaged under the dartboard's filename. Only the male-human variant was
+affected, because that is the one file of four the game loads for that body. It shipped correct in
+2014-2015 builds and broke somewhere before 2021. Replaced with the correct model.
+
+### Everything else on the CPU-skinning list
+
+The two bugs above turned out to be instances of one authoring accident, so the whole client was
+swept for it. Of **32,949 skinned meshes, only 104** used the CPU path — the client is 99.7 % GPU
+already, and those few are an oversight rather than a decision. 103 were converted: costumes,
+weapons, monsters, city NPCs and player transformation models.
+
+The remaining four are the `Thunderdrum` back accessory, deliberately left alone. Its material
+declares no skinning inputs whatsoever, so converting it would delete the very data its shader
+reads.
+
+### Quality and performance
+
+16x anisotropic filtering, full-resolution textures, high-quality shaders kept at far and mid
+draw distance, no per-frame sleep, inlined hot-loop accessors, view-cone culling.
+
+The character shaders were also reworked: specular highlights now follow the artist's gloss and
+mask maps per texel instead of applying one uniform highlight to everything, which is what made
+skin and cloth look like plastic.
+
+## Known limits
+
+**Only the doll fix is confirmed in game.** Everything else passed structural checks and a
+deformation-equivalence test against the original files — the converted mesh provably bends the
+same way the original did — but it has not been rendered and played at scale. If something looks
+wrong, reporting it is genuinely useful.
+
+Four meshes needed their bone list split across multiple draws: the `Female_Normal` city NPCs and
+the `MelaNoelMagician`. Those are the ones that could look perfectly fine standing still and wrong
+in motion. A character tearing along a seam while walking is the symptom to watch for.
+
+Nothing here changes gameplay, network traffic, or anything the server sees.
+
+---
+
+## Building it yourself
+
+You need Python 3.11+, the [VDK tool](../../../tools-ragnarok-online-2-vdk), and a clean copy of
+the b303 (2022-02-11) client — `Rag2.exe` md5 `cbeccb38bc455e9dd88ded2b43af76fe`.
+
+```bash
+python exe/patch_client.py --in <stock Rag2.exe> --out Rag2.exe   # 24 fixes, 302 bytes
+python tools/vdk.py build --from <stock ITEM.VDK> --apply <fix dir> --out ITEM.VDK
+python tools/vdk.py install --archive ITEM.VDK --to <client>/Data
+```
+
+`tools/vdk.py` refuses to start unless the source archive's md5 is a known-stock reference, and
+ends every build by re-extracting the packed archive and naming every file that differs from
+stock. Both exist because a fix was once built on top of an archive that was not what it was
+assumed to be, and silently carried 703 unrelated meshes into the game.
+
+Every file in the release is reproducible this way, byte for byte, from the stock client plus this
+repository. `python exe/patch_client.py --list` prints the full catalog of all 67 executable
+fixes and which are enabled by default.
+
+To pick a subset rather than everything, `apply.py` drives the same machinery from the mod
+registry in `mods.toml`:
+
+```bash
+python apply.py --list      # catalog and current state
+python apply.py --menu      # choose interactively, then apply
+python apply.py --revert    # restore the pristine files
+```
+
+Every apply rebuilds from a pristine baseline rather than editing the installed files, so turning
+a mod off genuinely removes it.
 
 ## Layout
 
 | path | what it is |
 |---|---|
-| `mods.toml` | the mod registry — 26 selectable mods, each bundling one or more underlying fixes |
-| `apply.py` | the applier: select, apply, revert, all from a pristine baseline |
-| `exe/patch_client.py` | the exe fix catalog (67 fixes) and byte patcher — self-verifying, pattern-anchored |
-| `shaders/stock/` | the 42 **pristine** effects from `b303-2022-02-11-PRISTINE/Data/DATA.VDK`. Ground truth. Never edit. |
-| `shaders/deployed/` | the 42 effects **currently shipping** in the play client |
-| `shaders/deployed_data/` | non-effect files the shipping `DATA.VDK` also modifies (`Toon01.bmp`). Small but load-bearing: without them a rebuild does not reproduce the installed archive, and that gap went unnoticed until the backups were about to be deleted. |
-| `shaders/src/` | HLSL sources for the shaders we author |
-| `shaders/tools/` | build, verify and splice tooling for effects |
-| `assets/<fix>/` | one directory per mesh fix: `stock/`, `fixed/`, its repair script and a report |
-| `tools/vdk.py` | the shared VDK delivery pipeline (extract verified-stock → apply → repack → diff → install) |
-| `textures/` | texture mods |
+| `exe/patch_client.py` | the executable fix catalog (67) and byte patcher — self-verifying, pattern-anchored |
+| `assets/<fix>/` | one directory per mesh fix: the stock file, the fixed file, the repair script and a report |
+| `shaders/stock/` | the 42 pristine effects. Ground truth for verification — never edited |
+| `shaders/deployed/` | the 42 effects the release ships |
+| `shaders/deployed_data/` | non-effect files `DATA.VDK` also carries (`Toon01.bmp`) |
+| `shaders/src/` | HLSL sources |
+| `shaders/tools/` | effect build, verify and splice tooling |
+| `tools/vdk.py` | the shared archive pipeline: verified-stock → apply → repack → diff → install |
+| `mods.toml`, `apply.py` | the selectable-mod registry and applier |
+| `docs/` | engineering notes: file-format traps, past regressions, why certain things are done the way they are |
 
-Three kinds of change:
+Runtime modifications — an injected DLL, a launcher, automation — are a separate concern and are
+not in this repository.
 
-| Kind | What | How it's applied |
-|------|------|------------------|
-| **exe** | Byte-patches to the executable — crash guards, address space (OOM), quality, FPS, culling, QoL. | `exe/patch_client.py` |
-| **shader-bytepatch** | Constant-only edits inside a `.fxo`. Used for **characters**: only constant bytes change, so the vertex/skinning shader stays byte-identical. | extract → byte-edit → repack `DATA.VDK` |
-| **shader-replace** | Swap a whole rebuilt `.fxo` (post/world effects — no skinning). | extract → overlay → repack `DATA.VDK` |
-| **asset** | Mesh (`.nif`) repairs. | `tools/vdk.py` → repack `ITEM.VDK` |
+## Credits and scope
 
-## Quick start
-
-```bash
-python apply.py --list              # see everything + what's enabled
-python apply.py --menu              # tick the ones you want, it applies them
-python apply.py --apply enabled     # apply the currently-enabled set
-python apply.py --revert            # restore the pristine exe + DATA.VDK
-python apply.py --dry-run --apply all   # preview, change nothing
-```
-
-Point it at your client in `mods.toml` under `[client]` (`dir`, `exe`, `vdk`). Needs Python
-3.11+ and the VDK tool (`[tools].vdk_tool`).
-
-### How apply/revert stay safe
-
-On the **first** apply the pristine `Rag2.exe` and `DATA.VDK` are copied to `backups/` with
-SHA-256. Every apply then rebuilds **from that baseline**: the exe is re-patched from the
-pristine copy, and `DATA.VDK` is extracted from the pristine copy, the enabled shader mods
-overlaid, and repacked. So disabling a mod and re-applying genuinely removes it, and `--revert`
-just restores the two pristine files. The original client is never the thing being edited — the
-baseline is.
-
-## Delivery: why the VDK pipeline refuses unverified inputs
-
-`tools/vdk.py build --from <archive>` will not start unless that archive's md5 is a known-stock
-reference. A fix was once built on top of a scratch extraction taken while a **different,
-later-reverted** patch was installed; the resulting "one file changed" archive silently carried
-703 unrelated modified meshes back into the game. Every individual step was correct — the input
-simply was not what it was assumed to be. So: build only from an archive whose provenance you
-have hashed, and finish by diffing the repacked archive against stock and naming every file that
-differs. The diff runs on the archive that will actually be installed, re-extracted after
-packing, and reports membership changes separately from content changes.
-
-⚠️ **Loose files do not override the VDK.** `VDisk_FileOpenHook` (0x11392E0), installed by
-`CActorMgr::Initialize` at 0xA4354D, resolves inside the archive first. Asset fixes must ship
-inside the archive.
-
-## Mods
-
-### exe — see `python exe/patch_client.py --list` for the full per-fix catalog
-
-- **exe-crash-stability** — *(default on)* LAA 2→4 GB (stops the long-session OOM crash cascade)
-  + dungeon-enter null-deref + 34 RMI/UI null-vtable-call crash guards.
-- **exe-memory-oom** — world/model textures + static geometry `MANAGED`→`DEFAULT`. `.patch` cave;
-  near-free under DXVK, runtime-untested on raw D3D9.
-- **exe-quality-vram** — full-res textures, 16× anisotropic, far/mid LOD.
-- **exe-efficiency-fps** — no per-frame Sleep, present IMMEDIATE, drop MULTITHREADED lock,
-  HARDWARE_VP+PUREDEVICE, inline hot getters, double buffer.
-- **exe-performance-cull** — view-cone cull + deferred equipment-NIF loading (crowd stutter).
-- **exe-quality-of-life** — skip opening movie, snappier camera, FMOD 512 channels.
-
-### shaders
-
-```
-python shaders/tools/build.py            # all effects with a source
-python shaders/tools/verify.py           # ALWAYS run before packaging
-```
-
-**PS-splice** — the 13 `Char_*` effects. Only the lit pixel shader is recompiled and spliced into
-the stock `.fxo`, so every vertex shader stays byte-identical. Not a preference: the character VS
-uses a legacy 90-register SkinBone tight-pack that modern `fxc` cannot reproduce, and recompiling
-a whole character effect makes characters **invisible**.
-
-**Full effect** — `PostEffect_SSAO`, compiled with `fxc /T fx_2_0`. Reproducible: compiling the
-unmodified source regenerates the shipped `.fxo` byte-for-byte.
-
-`verify.py` checks four things, each of which reached the game once: vertex shaders
-byte-identical to stock, no collapse of distinct per-technique pixel shaders, no float that has
-been through an int32 round trip (that was the "no mipmaps" bug), and shader model ≤ 3.
-
-Traps worth knowing:
-
-- **Pass render states matter as much as shaders.** A recompile once dropped `FogEnable = 0` on
-  32 passes. It appears in 219 of 219 stock passes and `=1` in none, because the engine turns fog
-  on (`RenderState::ApplyFogProperty` 0xBBD7D0) and every effect turns it back off.
-- **`MipMapLodBias = 3197737370;` is CORRECT** — that u32 is `0xBE99999A` = −0.3, and D3DX stores
-  the raw DWORD.
-- Registers **c212–c223** are reserved for the injected DLL's live-tuning constants.
-- The `GlowSampler` map is packed: **r** weave/dye mask, **g** spec mask, **b** glow, **a** gloss.
-  Over 48.2M visible-mask texels of 3,359 maps the gloss channel is **bimodal** — 60.75 % at
-  0.200, 15.60 % at 1.000 — so any weighting monotonic in the exponent pushes the two populations
-  in opposite directions.
-
-### assets
-
-**`assets/souldoll28`** — Soulmaker doll stray shadow. `SOULDOLL_28.nif` is the only one of 34
-doll meshes with `USE_SOFTWARE_SKINNING` set (flags `0x0003` vs `0x0002`). Its only GPU-readable
-geometry is a `POSITION` stream whose bytes are byte-identical to the bind pose, refreshed each
-frame only by the CPU deform task — and doll bind poses are authored at the character origin, so
-a draw that reads it before the deform completes renders a doll silhouette at the feet. The
-repair rebuilds the mesh into the hardware-skinning shape the other 33 use; its other changes
-(dropping the deform-output streams, adding a `BONE_PALETTE`, the material swap) are mechanical
-consequences of that one bit. Affects items `16702340` and `16702305`.
-
-**Status: installed, in-game result not yet confirmed.** If the doll renders deformed, revert.
-
-#### NIF 20.6 format traps
-
-- `NiAVObject::flags` is a **USHORT**, not a uint — reading it as uint shifts every later field.
-- Vertex stride is **not universally 48**: 48/normal@20, 52/normal@24, 40/@12, 12/@0.
-- `NiDataStream` is often **multi-region**; count is `numBytes/stride`.
-- Triangle indices may be submesh-**relative**; use per-region range containment.
-- Skinning bone-bounds are gated by `Flags & 2`, not `Flags & 1`.
-
-⚠️ **A geometrically correct normal weld was built, shipped and reverted — it produced holes.**
-These shaders do stepped **toon banding**, so a normal change past a step flips to a whole
-different band. The weld moved 769 normals by >30°; the seam metric improved 98.8 % and it looked
-worse. Cap future normal work at single-digit degrees and look at it in game before shipping.
-
-## What is not in git
-
-`.gitignore` keeps built `.fxo`, `.vdk`, `.exe`, `backups/` and local applier state out of
-commits. `shaders/stock/` and `shaders/deployed/` **are** committed — they are the reference the
-build verifies against, and without them nothing here is reproducible.
+This is unofficial, unaffiliated with Gravity or WeMade, and provided as-is. It modifies a client
+you already own. The game data in this repository is the publisher's; it is here because the fixes
+cannot be verified or reproduced without the originals to compare against.
