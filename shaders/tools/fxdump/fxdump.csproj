@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <AssemblyName>fxdump</AssemblyName>
+    <RootNamespace>fxdump</RootNamespace>
+    <NoWarn>CS0168;CS0414;CS0219</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\Darkr\Proyectos\ReverseEngineering\ragnarok-online-2\mods-ragnarok-online-2\tools\shaders\DXDecompiler\src\DXDecompiler\DXDecompiler.csproj" />
+  </ItemGroup>
+</Project>

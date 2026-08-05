@@ -1,0 +1,46 @@
+{
+  "source": "C:\\Users\\Darkr\\AppData\\Local\\Temp\\claude\\C--Users-Darkr-Proyectos-ReverseEngineering-ragnarok-online-2\\1c5216b3-3bbf-4657-97b8-027af0596dd9\\scratchpad\\dolls\\SOULDOLL_28.nif",
+  "source_md5": "d7e29e15ed929ec5451f31cba92abcff",
+  "source_size": 583683,
+  "output": "C:\\Users\\Darkr\\AppData\\Local\\Temp\\claude\\C--Users-Darkr-Proyectos-ReverseEngineering-ragnarok-online-2\\1c5216b3-3bbf-4657-97b8-027af0596dd9\\scratchpad\\souldoll28_fix\\SOULDOLL_28.nif",
+  "output_md5": "8a5bef9bad520b40fe37b68740cdd0e6",
+  "output_size": 533011,
+  "nverts": 2112,
+  "nbones": 4,
+  "mesh_block": 175,
+  "modifier_block": 198,
+  "index_stream": 190,
+  "interleaved_stream": 191,
+  "palette_stream": 192,
+  "orphan_streams": [
+    197,
+    193,
+    194,
+    195,
+    196
+  ],
+  "changed_blocks": [
+    175,
+    191,
+    192,
+    193,
+    194,
+    195,
+    196,
+    197,
+    198
+  ],
+  "stride": 48,
+  "material_old": "DefaultRag2ShaderNoSkin_Spec",
+  "material_new": "DefaultRag2ShaderSkinSpecular",
+  "flags_old": "0x0003",
+  "flags_new": "0x0002",
+  "vdk_archive": "ITEM.VDK",
+  "in_archive_path": "ITEM\\PCPARTS\\Weapon\\SOULDOLL_28.nif",
+  "lod_siblings": "none (SOULDOLL_28 has no _01/_02 variants; single file to ship)",
+  "revert": "restore SOULDOLL_28.nif.original (md5 d7e29e15ed929ec5451f31cba92abcff) and repack",
+  "affected_items": [
+    "16702340 Ancient Warrior's Doll",
+    "16702305 Serenia's Doll"
+  ]
+}

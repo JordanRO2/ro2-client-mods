@@ -1,5 +1,5 @@
-# --- Copyrighted client assets: NEVER committed (kept local only) ---
-# Modified shaders / textures / archives / executables derived from the client.
+# --- Copyrighted client assets: local only ---
+# Built shader binaries, repacked archives and patched executables.
 *.fxo
 *.vdk
 *.VDK
@@ -7,11 +7,23 @@
 textures/*
 !textures/.gitkeep
 
+# ...but the pristine and deployed effect references ARE committed: they are what
+# shaders/tools/verify.py compares against, and nothing here is reproducible without them.
+!shaders/stock/*.fxo
+!shaders/deployed/*.fxo
+
 # Pristine + patched client backups captured at apply time (contain client binaries).
 backups/
 
+# Scratch space used by tools/vdk.py (multi-GB extractions).
+_work/
+
 # Local applier state (which mods you've toggled on this machine).
 enabled.json
+
+# .NET build artifacts from the effect dumper
+shaders/tools/fxdump/bin/
+shaders/tools/fxdump/obj/
 
 # Python
 __pycache__/
