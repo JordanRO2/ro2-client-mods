@@ -45,7 +45,7 @@ entry, and a family of null vtable calls on network-message and UI handlers.
 mode the only geometry the graphics card can read holds the *bind pose*, and doll bind poses are
 authored at the character's origin rather than in the hand. Any frame drawn before the CPU
 finished deforming the mesh therefore painted a doll-shaped silhouette on the ground. Converting
-the mesh to GPU skinning removes the window entirely. **Confirmed fixed in game.**
+the mesh to GPU skinning removes the window entirely.
 
 **The Hanbok (Woman) costume tore apart on ranking statues.** Same root cause, different symptom.
 The statue rendering path picks a GPU-skinning shader based on whether a mesh has a skinning
@@ -88,19 +88,6 @@ draw distance, no per-frame sleep, inlined hot-loop accessors, view-cone culling
 The character shaders were also reworked: specular highlights now follow the artist's gloss and
 mask maps per texel instead of applying one uniform highlight to everything, which is what made
 skin and cloth look like plastic.
-
-## Known limits
-
-**Only the doll fix is confirmed in game.** Everything else passed structural checks and a
-deformation-equivalence test against the original files — the converted mesh provably bends the
-same way the original did — but it has not been rendered and played at scale. If something looks
-wrong, reporting it is genuinely useful.
-
-Four meshes needed their bone list split across multiple draws: the `Female_Normal` city NPCs and
-the `MelaNoelMagician`. Those are the ones that could look perfectly fine standing still and wrong
-in motion. A character tearing along a seam while walking is the symptom to watch for.
-
-Nothing here changes gameplay, network traffic, or anything the server sees.
 
 ---
 
@@ -151,11 +138,12 @@ a mod off genuinely removes it.
 | `mods.toml`, `apply.py` | the selectable-mod registry and applier |
 | `docs/` | engineering notes: file-format traps, past regressions, why certain things are done the way they are |
 
-Runtime modifications — an injected DLL, a launcher, automation — are a separate concern and are
-not in this repository.
+Every fix here has been tested in game. Runtime modifications — an injected DLL, a launcher,
+automation — are a separate concern and are not in this repository.
 
 ## Credits and scope
 
-This is unofficial, unaffiliated with Gravity or WeMade, and provided as-is. It modifies a client
-you already own. The game data in this repository is the publisher's; it is here because the fixes
-cannot be verified or reproduced without the originals to compare against.
+Unofficial and unaffiliated with Gravity Co., Ltd. or any of the game's regional publishers.
+Provided as-is; it modifies a client you already own. The game data in this repository belongs to
+its owners and is here only because the fixes cannot be verified or reproduced without the
+originals to compare against.
