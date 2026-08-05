@@ -47,8 +47,10 @@ ROOT = os.path.dirname(HERE)
 # An archive not in this table is NOT a valid build input, however plausible its name.
 # To add one: hash it out of the PRISTINE tree, never out of a play client.
 STOCK = {
-    "c82ccc877218e2586400ce6c1a151925": ("ITEM.VDK", 1128650077),
-    "51477073c54cb475da73d3fe4e978a59": ("DATA.VDK",   71449138),
+    "c82ccc877218e2586400ce6c1a151925": ("ITEM.VDK",  1128650077),
+    "51477073c54cb475da73d3fe4e978a59": ("DATA.VDK",    71449138),
+    "9560d9eece500dc162e90ebd8f95d9b2": ("ACTOR.VDK",  704362625),
+    "5402c004f0dc4603fbcb45e5e9eceb26": ("ITEM1.VDK",   85294081),
 }
 
 VDK_TOOL = os.path.normpath(os.path.join(
@@ -122,9 +124,22 @@ def diff(a_root, b_root):
 
 
 def load_map(apply_dir, explicit):
-    """Map local files under `apply_dir` to their in-archive paths."""
+    """Map local files under `apply_dir` to their in-archive paths.
+
+    Three sources, in order of precedence:
+      1. --map local=IN\\ARCHIVE\\PATH pairs, when the layouts genuinely differ;
+      2. a sibling repair_report.json naming `in_archive_path`, for a single-file fix;
+      3. MIRRORED LAYOUT -- the tree under apply_dir already reproduces the archive's own
+         directory structure, so each file's path relative to apply_dir *is* its in-archive
+         path. This is the normal case for a multi-file fix, and hand-writing dozens of
+         identical pairs is both tedious and a place to make a silent typo.
+
+    Mode 3 is only used when every relative path resolves inside the archive; cmd_build
+    verifies that per file and aborts on the first miss, so a wrong guess cannot go unnoticed.
+    """
     if explicit:
         return dict(p.split("=", 1) for p in explicit)
+
     report = os.path.join(os.path.dirname(apply_dir.rstrip("/\\")), "repair_report.json")
     if os.path.exists(report):
         r = json.load(open(report, encoding="utf-8"))
@@ -132,7 +147,15 @@ def load_map(apply_dir, explicit):
             files = [f for _, _, fs in os.walk(apply_dir) for f in fs]
             if len(files) == 1:
                 return {files[0]: r["in_archive_path"]}
-    sys.exit(f"cannot determine in-archive paths for {apply_dir} -- pass --map local=IN\\ARCHIVE\\PATH")
+
+    mirrored = {os.path.relpath(os.path.join(dp, f), apply_dir):
+                os.path.relpath(os.path.join(dp, f), apply_dir).replace(os.sep, "\\")
+                for dp, _, fs in os.walk(apply_dir) for f in fs}
+    if mirrored:
+        print(f"  mapping {len(mirrored)} file(s) by mirrored layout")
+        return mirrored
+
+    sys.exit(f"nothing to apply from {apply_dir}")
 
 
 def cmd_build(a):

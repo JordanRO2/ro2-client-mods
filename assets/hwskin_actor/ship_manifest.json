@@ -1,0 +1,192 @@
+{
+  "fix": "hwskin_actor",
+  "archive": "ACTOR.VDK",
+  "stock_archive_md5": "9560d9eece500dc162e90ebd8f95d9b2",
+  "client_build": "b303 2022-02-11 (PRISTINE)",
+  "change": "NiSkinningMeshModifier USE_SOFTWARE_SKINNING (Flags&1) removed; CPU deform-output streams replaced by one interleaved stride-48 GPU vertex stream + BONE_PALETTE; block count/order held constant.",
+  "files": [
+    {
+      "local": "ACTOR/Monster/AxolotlGuarder/AxolotlGuarder_01.nif",
+      "in_archive_path": "ACTOR\\Monster\\AxolotlGuarder\\AxolotlGuarder_01.nif",
+      "md5": "2fef9a282b6159ba470b06d46cca1b7f",
+      "size": 721204,
+      "stock_md5": "f270128392d054b7a00fbe5a027ed2db",
+      "stock_size": 726866,
+      "meshes_converted": 2,
+      "software_modifiers_remaining": 0
+    },
+    {
+      "local": "ACTOR/Monster/AxolotlGuarder/AxolotlGuarder_02.nif",
+      "in_archive_path": "ACTOR\\Monster\\AxolotlGuarder\\AxolotlGuarder_02.nif",
+      "md5": "c83eb5ad11bbecec9b7e5b28facb35a4",
+      "size": 383536,
+      "stock_md5": "1867ebe4b636135bd6bfe55e3d2484a8",
+      "stock_size": 392233,
+      "meshes_converted": 1,
+      "software_modifiers_remaining": 0
+    },
+    {
+      "local": "ACTOR/Monster/AxolotlGuarder/AxolotlGuarder_03.nif",
+      "in_archive_path": "ACTOR\\Monster\\AxolotlGuarder\\AxolotlGuarder_03.nif",
+      "md5": "5c582736b7b590bae5b9191c74e734cf",
+      "size": 397057,
+      "stock_md5": "8bd0987b9ad2ad6a21942037ab0cc8d6",
+      "stock_size": 410458,
+      "meshes_converted": 1,
+      "software_modifiers_remaining": 0
+    },
+    {
+      "local": "ACTOR/Monster/GreorShema/GregorShema_01.nif",
+      "in_archive_path": "ACTOR\\Monster\\GreorShema\\GregorShema_01.nif",
+      "md5": "570410cc229cf7cb1cb7eefb8bfa990b",
+      "size": 909703,
+      "stock_md5": "c5d797261600ebd42532bdb0a7832fed",
+      "stock_size": 916026,
+      "meshes_converted": 1,
+      "software_modifiers_remaining": 0
+    },
+    {
+      "local": "ACTOR/Monster/Gustaf/Gustaf_01.nif",
+      "in_archive_path": "ACTOR\\Monster\\Gustaf\\Gustaf_01.nif",
+      "md5": "71e0362c79e70d2f77e0553d96b0d86d",
+      "size": 846652,
+      "stock_md5": "82831f02f3a1b7d2ea1c714c7a875341",
+      "stock_size": 854343,
+      "meshes_converted": 1,
+      "software_modifiers_remaining": 0
+    },
+    {
+      "local": "ACTOR/Monster/MelaNoelMagician/MelaNoelMagician_01.nif",
+      "in_archive_path": "ACTOR\\Monster\\MelaNoelMagician\\MelaNoelMagician_01.nif",
+      "md5": "f752abe5722e0b875cdbcebca37c2fd5",
+      "size": 1282544,
+      "stock_md5": "89d9e2c6cf8fd4abe22af934be08447a",
+      "stock_size": 1347563,
+      "meshes_converted": 6,
+      "software_modifiers_remaining": 0
+    },
+    {
+      "local": "ACTOR/Monster/PayonVillagerMale/PayonVillager_01.nif",
+      "in_archive_path": "ACTOR\\Monster\\PayonVillagerMale\\PayonVillager_01.nif",
+      "md5": "9ed2e060eacfcef8e4e7754a464d0b6a",
+      "size": 743567,
+      "stock_md5": "0e0e080fb823ab9c6123379844904604",
+      "stock_size": 748378,
+      "meshes_converted": 1,
+      "software_modifiers_remaining": 0
+    },
+    {
+      "local": "ACTOR/Monster/PayonVillagerMale/PayonVillager_02.nif",
+      "in_archive_path": "ACTOR\\Monster\\PayonVillagerMale\\PayonVillager_02.nif",
+      "md5": "e0405199e9899ec537f3fbaf0cf5e000",
+      "size": 743814,
+      "stock_md5": "c4588f5fb5d80e6be6665eaf87417d6a",
+      "stock_size": 748913,
+      "meshes_converted": 1,
+      "software_modifiers_remaining": 0
+    },
+    {
+      "local": "ACTOR/Monster/Rafflesia/Rafflesia_01.nif",
+      "in_archive_path": "ACTOR\\Monster\\Rafflesia\\Rafflesia_01.nif",
+      "md5": "08c1c1e9c797cf5b32253e761e2aff00",
+      "size": 793542,
+      "stock_md5": "6a253206278cf0dff977482d92c5916e",
+      "stock_size": 795041,
+      "meshes_converted": 1,
+      "software_modifiers_remaining": 0
+    },
+    {
+      "local": "ACTOR/NPC/Etc/WoodBarrel/WoodBarrel.nif",
+      "in_archive_path": "ACTOR\\NPC\\Etc\\WoodBarrel\\WoodBarrel.nif",
+      "md5": "6fec0b1e5097a8fb06b983f09dd3d055",
+      "size": 28044,
+      "stock_md5": "b28596d6f3dbf62171367058fed1a697",
+      "stock_size": 29482,
+      "meshes_converted": 1,
+      "software_modifiers_remaining": 0
+    },
+    {
+      "local": "ACTOR/NPC/Female_Child/Female_Child_People_01.nif",
+      "in_archive_path": "ACTOR\\NPC\\Female_Child\\Female_Child_People_01.nif",
+      "md5": "4f0999c43c84ace3372612b633b8cbd5",
+      "size": 1210814,
+      "stock_md5": "d9baa3dfd4f332a412755ab29281ac56",
+      "stock_size": 1227468,
+      "meshes_converted": 2,
+      "software_modifiers_remaining": 0
+    },
+    {
+      "local": "ACTOR/NPC/Female_Normal/Female_Normal_People_01.nif",
+      "in_archive_path": "ACTOR\\NPC\\Female_Normal\\Female_Normal_People_01.nif",
+      "md5": "84c1c53d3ebc67f77422421258efbc8a",
+      "size": 316374,
+      "stock_md5": "84bac5958fc3fcb66b0d49f010dd985e",
+      "stock_size": 367691,
+      "meshes_converted": 2,
+      "software_modifiers_remaining": 0
+    },
+    {
+      "local": "ACTOR/NPC/Female_Normal/Female_Normal_People_02.nif",
+      "in_archive_path": "ACTOR\\NPC\\Female_Normal\\Female_Normal_People_02.nif",
+      "md5": "fc6160b08e82cd46bb064eaec36a7ebb",
+      "size": 317964,
+      "stock_md5": "c18190c67a3e2d841ffaf6a4acd9ef44",
+      "stock_size": 367691,
+      "meshes_converted": 2,
+      "software_modifiers_remaining": 0
+    },
+    {
+      "local": "ACTOR/NPC/Female_Normal/Female_Normal_People_03.nif",
+      "in_archive_path": "ACTOR\\NPC\\Female_Normal\\Female_Normal_People_03.nif",
+      "md5": "71001b0689b7c422184927a47a0e8ad1",
+      "size": 316374,
+      "stock_md5": "957455e31c5707cf7dc08cf8b12922f7",
+      "stock_size": 367691,
+      "meshes_converted": 2,
+      "software_modifiers_remaining": 0
+    },
+    {
+      "local": "ACTOR/NPC/Male_Normal/Male_Normal_Nuamu_01.nif",
+      "in_archive_path": "ACTOR\\NPC\\Male_Normal\\Male_Normal_Nuamu_01.nif",
+      "md5": "38d568832a6ab5752c90eda583c76663",
+      "size": 820145,
+      "stock_md5": "88634be74b45d9afd8e1a993c065190a",
+      "stock_size": 845641,
+      "meshes_converted": 2,
+      "software_modifiers_remaining": 0
+    },
+    {
+      "local": "ACTOR/PC/Transform/AxolotlGuarder/AxolotlGuarder_01.nif",
+      "in_archive_path": "ACTOR\\PC\\Transform\\AxolotlGuarder\\AxolotlGuarder_01.nif",
+      "md5": "2fef9a282b6159ba470b06d46cca1b7f",
+      "size": 721204,
+      "stock_md5": "f270128392d054b7a00fbe5a027ed2db",
+      "stock_size": 726866,
+      "meshes_converted": 2,
+      "software_modifiers_remaining": 0
+    },
+    {
+      "local": "ACTOR/PC/Transform/AxolotlGuarder/AxolotlGuarder_02.nif",
+      "in_archive_path": "ACTOR\\PC\\Transform\\AxolotlGuarder\\AxolotlGuarder_02.nif",
+      "md5": "c83eb5ad11bbecec9b7e5b28facb35a4",
+      "size": 383536,
+      "stock_md5": "1867ebe4b636135bd6bfe55e3d2484a8",
+      "stock_size": 392233,
+      "meshes_converted": 1,
+      "software_modifiers_remaining": 0
+    },
+    {
+      "local": "ACTOR/PC/Transform/AxolotlGuarder/AxolotlGuarder_03.nif",
+      "in_archive_path": "ACTOR\\PC\\Transform\\AxolotlGuarder\\AxolotlGuarder_03.nif",
+      "md5": "5c582736b7b590bae5b9191c74e734cf",
+      "size": 397057,
+      "stock_md5": "8bd0987b9ad2ad6a21942037ab0cc8d6",
+      "stock_size": 410458,
+      "meshes_converted": 1,
+      "software_modifiers_remaining": 0
+    }
+  ],
+  "n_files": 18,
+  "n_meshes_converted": 30,
+  "rendered_in_game": false
+}

@@ -20,6 +20,7 @@ Gamebryo / NiDX9 under DXVK.
 | `exe/patch_client.py` | the exe fix catalog (67 fixes) and byte patcher — self-verifying, pattern-anchored |
 | `shaders/stock/` | the 42 **pristine** effects from `b303-2022-02-11-PRISTINE/Data/DATA.VDK`. Ground truth. Never edit. |
 | `shaders/deployed/` | the 42 effects **currently shipping** in the play client |
+| `shaders/deployed_data/` | non-effect files the shipping `DATA.VDK` also modifies (`Toon01.bmp`). Small but load-bearing: without them a rebuild does not reproduce the installed archive, and that gap went unnoticed until the backups were about to be deleted. |
 | `shaders/src/` | HLSL sources for the shaders we author |
 | `shaders/tools/` | build, verify and splice tooling for effects |
 | `assets/<fix>/` | one directory per mesh fix: `stock/`, `fixed/`, its repair script and a report |

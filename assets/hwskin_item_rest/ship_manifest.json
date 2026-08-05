@@ -1,0 +1,1598 @@
+{
+ "fix": "hwskin_item_rest",
+ "archive": "ITEM.VDK",
+ "stock_archive_md5": "c82ccc877218e2586400ce6c1a151925",
+ "client_build": "b303 2022-02-11 (PRISTINE)",
+ "purpose": "Remaining software-skinned meshes in ITEM.VDK, converted to hardware skinning. Software-skinned meshes ship without a BONE_PALETTE; any client path that assigns a GPU-skinning material on the mere presence of a NiSkinningMeshModifier then draws them with whatever bone matrices the previous draw left in the constant registers. Converting them removes that class of defect and puts the deform on the GPU.",
+ "change": "NiSkinningMeshModifier USE_SOFTWARE_SKINNING (Flags&1) cleared (0x0003 -> 0x0002); sync points 2 -> 1 ([0x8020,0x8030]/[0x8040,0x8030] -> [0x8020]/[0x8040]); CPU deform-output POSITION/NORMAL streams dropped and replaced by ONE interleaved GPU-readable vertex stream at usage/access (1,18) -- [TEXCOORD, POSITION_BP, NORMAL_BP, BLENDINDICES, BLENDWEIGHT] stride 48, or [COLOR, TEXCOORD, POSITION_BP, NORMAL_BP, BLENDINDICES, BLENDWEIGHT] stride 52 where the mesh carries an authored COLOR channel -- plus a BONE_PALETTE stream at usage/access (3,3); material DefaultRag2ShaderNoSkin -> DefaultRag2ShaderSkin and DefaultRag2ShaderNoSkin_Spec -> DefaultRag2ShaderSkinSpecular; block count, block order and every Ptr/Ref held constant (freed NiDataStream slots rewritten as unreferenced 0-byte stubs, not deleted); all edits by splicing.",
+ "files": [
+  {
+   "local": "fixed/ITEM/PCPARTS/Costume/Female/Crescentia_Noel_Female_HEAD_11.nif",
+   "in_archive_path": "ITEM\\PCPARTS\\Costume\\Female\\Crescentia_Noel_Female_HEAD_11.nif",
+   "md5": "1ac39a573494c672922078eabd8b9081",
+   "size": 45317,
+   "stock_md5": "953216e1e7689007cab44d412a2599f8",
+   "stock_size": 52681,
+   "blocks": 370,
+   "blocks_stock": 370,
+   "meshes_converted": 3,
+   "modifiers_flags_stock": [
+    3,
+    3,
+    3
+   ],
+   "modifiers_flags_fixed": [
+    2,
+    2,
+    2
+   ],
+   "software_modifiers_remaining": 0,
+   "mesh_detail": [
+    {
+     "block": 316,
+     "name": "Editable Poly",
+     "nsub": 1,
+     "verts": 191,
+     "stride": 48,
+     "palette_entries": 1,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 335,
+     "name": "Editable Mesh",
+     "nsub": 1,
+     "verts": 66,
+     "stride": 48,
+     "palette_entries": 1,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 351,
+     "name": "Editable Mesh",
+     "nsub": 1,
+     "verts": 45,
+     "stride": 48,
+     "palette_entries": 1,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    }
+   ],
+   "md5_reverified_after_copy": "1ac39a573494c672922078eabd8b9081",
+   "md5_matches": true
+  },
+  {
+   "local": "fixed/ITEM/PCPARTS/Costume/Female/Knight_Female_HEAD_15.nif",
+   "in_archive_path": "ITEM\\PCPARTS\\Costume\\Female\\Knight_Female_HEAD_15.nif",
+   "md5": "d2c906f3e59e43db344bdf2bf36bb6c4",
+   "size": 64304,
+   "stock_md5": "d385f13410fe3e92df887efb859cd309",
+   "stock_size": 76694,
+   "blocks": 478,
+   "blocks_stock": 478,
+   "meshes_converted": 3,
+   "modifiers_flags_stock": [
+    3,
+    3,
+    3
+   ],
+   "modifiers_flags_fixed": [
+    2,
+    2,
+    2
+   ],
+   "software_modifiers_remaining": 0,
+   "mesh_detail": [
+    {
+     "block": 423,
+     "name": "Editable Poly",
+     "nsub": 1,
+     "verts": 342,
+     "stride": 52,
+     "palette_entries": 2,
+     "material_stock": "DefaultRag2ShaderNoSkin_Spec",
+     "material_fixed": "DefaultRag2ShaderSkinSpecular",
+     "stream_form": "COLOR+TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 442,
+     "name": "Editable Mesh",
+     "nsub": 1,
+     "verts": 110,
+     "stride": 52,
+     "palette_entries": 2,
+     "material_stock": "DefaultRag2ShaderNoSkin_Spec",
+     "material_fixed": "DefaultRag2ShaderSkinSpecular",
+     "stream_form": "COLOR+TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 458,
+     "name": "Editable Mesh",
+     "nsub": 1,
+     "verts": 60,
+     "stride": 52,
+     "palette_entries": 2,
+     "material_stock": "DefaultRag2ShaderNoSkin_Spec",
+     "material_fixed": "DefaultRag2ShaderSkinSpecular",
+     "stream_form": "COLOR+TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    }
+   ],
+   "md5_reverified_after_copy": "d2c906f3e59e43db344bdf2bf36bb6c4",
+   "md5_matches": true
+  },
+  {
+   "local": "fixed/ITEM/PCPARTS/Costume/Female/Redmanteau_Noel_Female_CHEST_01.nif",
+   "in_archive_path": "ITEM\\PCPARTS\\Costume\\Female\\Redmanteau_Noel_Female_CHEST_01.nif",
+   "md5": "c44c6657cc809e5e7e10986b339709d5",
+   "size": 533690,
+   "stock_md5": "3595b3d2178a80c498556352f38791d7",
+   "stock_size": 538364,
+   "blocks": 502,
+   "blocks_stock": 502,
+   "meshes_converted": 3,
+   "modifiers_flags_stock": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    3,
+    3,
+    3
+   ],
+   "modifiers_flags_fixed": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "software_modifiers_remaining": 0,
+   "mesh_detail": [
+    {
+     "block": 367,
+     "name": "ALL_BODY:2",
+     "nsub": 1,
+     "verts": 97,
+     "stride": 48,
+     "palette_entries": 5,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 442,
+     "name": "ALL_BODY_01:2",
+     "nsub": 1,
+     "verts": 69,
+     "stride": 48,
+     "palette_entries": 3,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 480,
+     "name": "ALL_BODY_02:2",
+     "nsub": 1,
+     "verts": 23,
+     "stride": 48,
+     "palette_entries": 2,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    }
+   ],
+   "md5_reverified_after_copy": "c44c6657cc809e5e7e10986b339709d5",
+   "md5_matches": true
+  },
+  {
+   "local": "fixed/ITEM/PCPARTS/Costume/Female/Redmanteau_Noel_Female_CHEST_02.nif",
+   "in_archive_path": "ITEM\\PCPARTS\\Costume\\Female\\Redmanteau_Noel_Female_CHEST_02.nif",
+   "md5": "707eb726b68a474778d802450110b074",
+   "size": 473167,
+   "stock_md5": "1d42bb8ce511d373a8e4ce3c557e7abd",
+   "stock_size": 477841,
+   "blocks": 444,
+   "blocks_stock": 444,
+   "meshes_converted": 3,
+   "modifiers_flags_stock": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    3,
+    3,
+    3
+   ],
+   "modifiers_flags_fixed": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "software_modifiers_remaining": 0,
+   "mesh_detail": [
+    {
+     "block": 345,
+     "name": "ALL_BODY:2",
+     "nsub": 1,
+     "verts": 97,
+     "stride": 48,
+     "palette_entries": 5,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 387,
+     "name": "ALL_BODY_01:2",
+     "nsub": 1,
+     "verts": 69,
+     "stride": 48,
+     "palette_entries": 3,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 425,
+     "name": "ALL_BODY_02:2",
+     "nsub": 1,
+     "verts": 23,
+     "stride": 48,
+     "palette_entries": 2,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    }
+   ],
+   "md5_reverified_after_copy": "707eb726b68a474778d802450110b074",
+   "md5_matches": true
+  },
+  {
+   "local": "fixed/ITEM/PCPARTS/Costume/Female/SiegeRobe_Female_CHEST_02.nif",
+   "in_archive_path": "ITEM\\PCPARTS\\Costume\\Female\\SiegeRobe_Female_CHEST_02.nif",
+   "md5": "31ccfa772925c4c94265bce415c950f7",
+   "size": 272298,
+   "stock_md5": "5c801f3a7edb69838383757fcf633c38",
+   "stock_size": 292005,
+   "blocks": 433,
+   "blocks_stock": 433,
+   "meshes_converted": 3,
+   "modifiers_flags_stock": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    3,
+    3,
+    3
+   ],
+   "modifiers_flags_fixed": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "software_modifiers_remaining": 0,
+   "mesh_detail": [
+    {
+     "block": 295,
+     "name": "ALL_BODY:2",
+     "nsub": 1,
+     "verts": 294,
+     "stride": 48,
+     "palette_entries": 12,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 348,
+     "name": "ALL_BODY_01:2",
+     "nsub": 1,
+     "verts": 330,
+     "stride": 48,
+     "palette_entries": 10,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 396,
+     "name": "ALL_BODY_02:2",
+     "nsub": 1,
+     "verts": 192,
+     "stride": 48,
+     "palette_entries": 8,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    }
+   ],
+   "md5_reverified_after_copy": "31ccfa772925c4c94265bce415c950f7",
+   "md5_matches": true
+  },
+  {
+   "local": "fixed/ITEM/PCPARTS/Costume/Female/SoulMaker_Noel_Female_HEAD_18.nif",
+   "in_archive_path": "ITEM\\PCPARTS\\Costume\\Female\\SoulMaker_Noel_Female_HEAD_18.nif",
+   "md5": "03680e0a0b4e04fdd0ce7d0835f08235",
+   "size": 61868,
+   "stock_md5": "4f38f0f5db66a2e7616b455824a2fd46",
+   "stock_size": 62837,
+   "blocks": 442,
+   "blocks_stock": 442,
+   "meshes_converted": 3,
+   "modifiers_flags_stock": [
+    2,
+    2,
+    2,
+    3,
+    3,
+    3
+   ],
+   "modifiers_flags_fixed": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "software_modifiers_remaining": 0,
+   "mesh_detail": [
+    {
+     "block": 369,
+     "name": "HEAD_F:1",
+     "nsub": 1,
+     "verts": 16,
+     "stride": 48,
+     "palette_entries": 1,
+     "material_stock": "DefaultRag2ShaderNoSkin_Spec",
+     "material_fixed": "DefaultRag2ShaderSkinSpecular",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 397,
+     "name": "HEAD_F_01:1",
+     "nsub": 1,
+     "verts": 13,
+     "stride": 48,
+     "palette_entries": 1,
+     "material_stock": "DefaultRag2ShaderNoSkin_Spec",
+     "material_fixed": "DefaultRag2ShaderSkinSpecular",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 423,
+     "name": "HEAD_F_02:1",
+     "nsub": 1,
+     "verts": 4,
+     "stride": 48,
+     "palette_entries": 1,
+     "material_stock": "DefaultRag2ShaderNoSkin_Spec",
+     "material_fixed": "DefaultRag2ShaderSkinSpecular",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    }
+   ],
+   "md5_reverified_after_copy": "03680e0a0b4e04fdd0ce7d0835f08235",
+   "md5_matches": true
+  },
+  {
+   "local": "fixed/ITEM/PCPARTS/Costume/Female/Wizard_Female_HEAD_14.nif",
+   "in_archive_path": "ITEM\\PCPARTS\\Costume\\Female\\Wizard_Female_HEAD_14.nif",
+   "md5": "4995a0ddf829056c16fbf08949b40889",
+   "size": 52098,
+   "stock_md5": "e5604ef7338c34b3b6e9926b2d57cb91",
+   "stock_size": 59990,
+   "blocks": 484,
+   "blocks_stock": 484,
+   "meshes_converted": 3,
+   "modifiers_flags_stock": [
+    3,
+    3,
+    3
+   ],
+   "modifiers_flags_fixed": [
+    2,
+    2,
+    2
+   ],
+   "software_modifiers_remaining": 0,
+   "mesh_detail": [
+    {
+     "block": 429,
+     "name": "Editable Poly",
+     "nsub": 1,
+     "verts": 209,
+     "stride": 52,
+     "palette_entries": 1,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "COLOR+TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 448,
+     "name": "Editable Mesh",
+     "nsub": 1,
+     "verts": 72,
+     "stride": 52,
+     "palette_entries": 1,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "COLOR+TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 464,
+     "name": "Editable Mesh",
+     "nsub": 1,
+     "verts": 43,
+     "stride": 52,
+     "palette_entries": 1,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "COLOR+TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    }
+   ],
+   "md5_reverified_after_copy": "4995a0ddf829056c16fbf08949b40889",
+   "md5_matches": true
+  },
+  {
+   "local": "fixed/ITEM/PCPARTS/Costume/Male/Crescentia_Noel_Male_FOOT_11.nif",
+   "in_archive_path": "ITEM\\PCPARTS\\Costume\\Male\\Crescentia_Noel_Male_FOOT_11.nif",
+   "md5": "9f1531709eb6f25d850c827708e3a403",
+   "size": 206334,
+   "stock_md5": "173e596b81b529b99d99094ff1699631",
+   "stock_size": 210176,
+   "blocks": 420,
+   "blocks_stock": 420,
+   "meshes_converted": 3,
+   "modifiers_flags_stock": [
+    2,
+    2,
+    2,
+    3,
+    3,
+    3
+   ],
+   "modifiers_flags_fixed": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "software_modifiers_remaining": 0,
+   "mesh_detail": [
+    {
+     "block": 347,
+     "name": "FOOT_L:1",
+     "nsub": 1,
+     "verts": 40,
+     "stride": 48,
+     "palette_entries": 2,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 375,
+     "name": "FOOT_L_01:1",
+     "nsub": 1,
+     "verts": 66,
+     "stride": 48,
+     "palette_entries": 2,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 401,
+     "name": "FOOT_L_02:1",
+     "nsub": 1,
+     "verts": 48,
+     "stride": 48,
+     "palette_entries": 2,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    }
+   ],
+   "md5_reverified_after_copy": "9f1531709eb6f25d850c827708e3a403",
+   "md5_matches": true
+  },
+  {
+   "local": "fixed/ITEM/PCPARTS/Costume/Male/SiegeRobe_Noel_Male_CHEST_05.nif",
+   "in_archive_path": "ITEM\\PCPARTS\\Costume\\Male\\SiegeRobe_Noel_Male_CHEST_05.nif",
+   "md5": "9d637627194a177bf6e3f51fd2a2d383",
+   "size": 299749,
+   "stock_md5": "60ca16f60c6da0740d093494b8724653",
+   "stock_size": 320014,
+   "blocks": 547,
+   "blocks_stock": 547,
+   "meshes_converted": 3,
+   "modifiers_flags_stock": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    3,
+    3,
+    3
+   ],
+   "modifiers_flags_fixed": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "software_modifiers_remaining": 0,
+   "mesh_detail": [
+    {
+     "block": 376,
+     "name": "ALL_BODY:4",
+     "nsub": 1,
+     "verts": 276,
+     "stride": 48,
+     "palette_entries": 7,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 450,
+     "name": "ALL_BODY_01:4",
+     "nsub": 1,
+     "verts": 370,
+     "stride": 48,
+     "palette_entries": 5,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 518,
+     "name": "ALL_BODY_02:4",
+     "nsub": 1,
+     "verts": 192,
+     "stride": 48,
+     "palette_entries": 3,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    }
+   ],
+   "md5_reverified_after_copy": "9d637627194a177bf6e3f51fd2a2d383",
+   "md5_matches": true
+  },
+  {
+   "local": "fixed/ITEM/PCPARTS/Costume/Male/SoulMaker_Noel_Male_LEG_18.nif",
+   "in_archive_path": "ITEM\\PCPARTS\\Costume\\Male\\SoulMaker_Noel_Male_LEG_18.nif",
+   "md5": "955d702456e48238b45b9f727c3aedcb",
+   "size": 72754,
+   "stock_md5": "8557ac994988629378139ec888fed458",
+   "stock_size": 75920,
+   "blocks": 474,
+   "blocks_stock": 474,
+   "meshes_converted": 3,
+   "modifiers_flags_stock": [
+    2,
+    2,
+    2,
+    3,
+    3,
+    3
+   ],
+   "modifiers_flags_fixed": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "software_modifiers_remaining": 0,
+   "mesh_detail": [
+    {
+     "block": 400,
+     "name": "LEG_S:1",
+     "nsub": 1,
+     "verts": 101,
+     "stride": 48,
+     "palette_entries": 5,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 429,
+     "name": "LEG_S_01:1",
+     "nsub": 1,
+     "verts": 17,
+     "stride": 48,
+     "palette_entries": 2,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 455,
+     "name": "LEG_S_02:1",
+     "nsub": 1,
+     "verts": 8,
+     "stride": 48,
+     "palette_entries": 1,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    }
+   ],
+   "md5_reverified_after_copy": "955d702456e48238b45b9f727c3aedcb",
+   "md5_matches": true
+  },
+  {
+   "local": "fixed/ITEM/PCPARTS/Costume/Male/SoulMaker_Noel_Male_LEG_19.nif",
+   "in_archive_path": "ITEM\\PCPARTS\\Costume\\Male\\SoulMaker_Noel_Male_LEG_19.nif",
+   "md5": "519e537bd2532daa588cdf082f9f06ab",
+   "size": 114058,
+   "stock_md5": "0e597e9c25e2ec01ff43aecae9ae8df0",
+   "stock_size": 123632,
+   "blocks": 474,
+   "blocks_stock": 474,
+   "meshes_converted": 3,
+   "modifiers_flags_stock": [
+    2,
+    2,
+    2,
+    3,
+    3,
+    3
+   ],
+   "modifiers_flags_fixed": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "software_modifiers_remaining": 0,
+   "mesh_detail": [
+    {
+     "block": 400,
+     "name": "LEG_S:1",
+     "nsub": 1,
+     "verts": 296,
+     "stride": 48,
+     "palette_entries": 5,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 429,
+     "name": "LEG_S_01:1",
+     "nsub": 1,
+     "verts": 65,
+     "stride": 48,
+     "palette_entries": 2,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 455,
+     "name": "LEG_S_02:1",
+     "nsub": 1,
+     "verts": 32,
+     "stride": 48,
+     "palette_entries": 1,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    }
+   ],
+   "md5_reverified_after_copy": "519e537bd2532daa588cdf082f9f06ab",
+   "md5_matches": true
+  },
+  {
+   "local": "fixed/ITEM/PCPARTS/Costume/Male/Summerlook_Noel_Male_CHEST_01.nif",
+   "in_archive_path": "ITEM\\PCPARTS\\Costume\\Male\\Summerlook_Noel_Male_CHEST_01.nif",
+   "md5": "6db2168455c5cec07d5eaac34ab62cfd",
+   "size": 348925,
+   "stock_md5": "f986fedc30345ba6474a8c83e087d0ab",
+   "stock_size": 358757,
+   "blocks": 644,
+   "blocks_stock": 644,
+   "meshes_converted": 3,
+   "modifiers_flags_stock": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    3,
+    3,
+    3
+   ],
+   "modifiers_flags_fixed": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "software_modifiers_remaining": 0,
+   "mesh_detail": [
+    {
+     "block": 520,
+     "name": "ALL_BODY:4",
+     "nsub": 1,
+     "verts": 296,
+     "stride": 48,
+     "palette_entries": 5,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 571,
+     "name": "ALL_BODY_01:4",
+     "nsub": 1,
+     "verts": 72,
+     "stride": 48,
+     "palette_entries": 4,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 619,
+     "name": "ALL_BODY_02:4",
+     "nsub": 1,
+     "verts": 36,
+     "stride": 48,
+     "palette_entries": 2,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    }
+   ],
+   "md5_reverified_after_copy": "6db2168455c5cec07d5eaac34ab62cfd",
+   "md5_matches": true
+  },
+  {
+   "local": "fixed/ITEM/PCPARTS/Costume/Male/Summerlook_Noel_Male_CHEST_02.nif",
+   "in_archive_path": "ITEM\\PCPARTS\\Costume\\Male\\Summerlook_Noel_Male_CHEST_02.nif",
+   "md5": "5c19b0bb527e998523a5fae636e7dfa7",
+   "size": 348925,
+   "stock_md5": "e72df032fbf32a4baa9d3036519e46c2",
+   "stock_size": 358757,
+   "blocks": 644,
+   "blocks_stock": 644,
+   "meshes_converted": 3,
+   "modifiers_flags_stock": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    3,
+    3,
+    3
+   ],
+   "modifiers_flags_fixed": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+   ],
+   "software_modifiers_remaining": 0,
+   "mesh_detail": [
+    {
+     "block": 520,
+     "name": "ALL_BODY:4",
+     "nsub": 1,
+     "verts": 296,
+     "stride": 48,
+     "palette_entries": 5,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 571,
+     "name": "ALL_BODY_01:4",
+     "nsub": 1,
+     "verts": 72,
+     "stride": 48,
+     "palette_entries": 4,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    },
+    {
+     "block": 619,
+     "name": "ALL_BODY_02:4",
+     "nsub": 1,
+     "verts": 36,
+     "stride": 48,
+     "palette_entries": 2,
+     "material_stock": "DefaultRag2ShaderNoSkin",
+     "material_fixed": "DefaultRag2ShaderSkin",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    }
+   ],
+   "md5_reverified_after_copy": "5c19b0bb527e998523a5fae636e7dfa7",
+   "md5_matches": true
+  },
+  {
+   "local": "fixed/ITEM/PCPARTS/Weapon/Female_Fist_07.nif",
+   "in_archive_path": "ITEM\\PCPARTS\\Weapon\\Female_Fist_07.nif",
+   "md5": "bb849ed4a31a11f03308ee3cf87f3dc0",
+   "size": 478194,
+   "stock_md5": "182e7a413725642cb42fbfc82734f828",
+   "stock_size": 493606,
+   "blocks": 51,
+   "blocks_stock": 51,
+   "meshes_converted": 1,
+   "modifiers_flags_stock": [
+    3
+   ],
+   "modifiers_flags_fixed": [
+    2
+   ],
+   "software_modifiers_remaining": 0,
+   "mesh_detail": [
+    {
+     "block": 9,
+     "name": "Editable Poly",
+     "nsub": 1,
+     "verts": 643,
+     "stride": 48,
+     "palette_entries": 6,
+     "material_stock": "DefaultRag2ShaderNoSkin_Spec",
+     "material_fixed": "DefaultRag2ShaderSkinSpecular",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    }
+   ],
+   "md5_reverified_after_copy": "bb849ed4a31a11f03308ee3cf87f3dc0",
+   "md5_matches": true
+  },
+  {
+   "local": "fixed/ITEM/PCPARTS/Weapon/Male_Fist_07.nif",
+   "in_archive_path": "ITEM\\PCPARTS\\Weapon\\Male_Fist_07.nif",
+   "md5": "8a68401050027ca5e873ee30161391bc",
+   "size": 478194,
+   "stock_md5": "04423d4c0d5a74f8a7b55f3bce47ae8f",
+   "stock_size": 493606,
+   "blocks": 51,
+   "blocks_stock": 51,
+   "meshes_converted": 1,
+   "modifiers_flags_stock": [
+    3
+   ],
+   "modifiers_flags_fixed": [
+    2
+   ],
+   "software_modifiers_remaining": 0,
+   "mesh_detail": [
+    {
+     "block": 9,
+     "name": "Editable Poly",
+     "nsub": 1,
+     "verts": 643,
+     "stride": 48,
+     "palette_entries": 6,
+     "material_stock": "DefaultRag2ShaderNoSkin_Spec",
+     "material_fixed": "DefaultRag2ShaderSkinSpecular",
+     "stream_form": "TEXCOORD+POSITION_BP+NORMAL_BP+BLENDINDICES+BLENDWEIGHT",
+     "usage_access": [
+      [
+       0,
+       18
+      ],
+      [
+       1,
+       18
+      ],
+      [
+       3,
+       3
+      ]
+     ]
+    }
+   ],
+   "md5_reverified_after_copy": "8a68401050027ca5e873ee30161391bc",
+   "md5_matches": true
+  }
+ ],
+ "n_files": 15,
+ "n_meshes_converted": 41,
+ "expected_differing_files_in_build": 15,
+ "expected_differing_files_in_build_combined": {
+  "assets/souldoll28/fixed": 1,
+  "assets/hwskin_hanbok/fixed": 2,
+  "assets/hwskin_item_rest/fixed": 15,
+  "total": 18
+ },
+ "excluded": [
+  {
+   "files": [
+    "ITEM\\PCPARTS\\Back\\Female\\Thunderdrum\\Thunderdrum_Female_Back_01.nif",
+    "ITEM\\PCPARTS\\Back\\Female\\Thunderdrum\\Thunderdrum_Noel_Female_Back_01.nif",
+    "ITEM\\PCPARTS\\Back\\Male\\Thunderdrum\\Thunderdrum_Male_Back_01.nif",
+    "ITEM\\PCPARTS\\Back\\Male\\Thunderdrum\\Thunderdrum_Noel_Male_Back_01.nif"
+   ],
+   "software_meshes_left_unconverted": 4,
+   "reason": "Block 51 (BACK01/BACK02) carries material DefaultRag2_FX_NoColor, served by an .NSB effect whose vertex format is PosNormUV/PosNormVCUV -- no BLENDINDICES, no BLENDWEIGHT, no bone-matrix constant. That material appears on 0 hardware-skinned meshes across 5834 archive files, so there is no skinned partner name to rename to, and conversion would delete the POSITION/NORMAL streams the shader reads. The conversion run produced these four byte-identical to stock; they are NOT staged, because shipping a no-op file only pollutes the build diff."
+  }
+ ],
+ "verification": {
+  "deform_equivalence_max_deviation": 0.0,
+  "deform_pose_sets": [
+   "bind pose",
+   "distinct per-bone rigid perturbation (posed)"
+  ],
+  "bind_pose_test_is_vacuous": "measured: at bind pose BoneWorld o skinToBone collapses to one common matrix (spread 3.74e-07), so palette permutations are undetectable there; the reported 0.0 deviations are the POSED comparison",
+  "mutation_controls": "289/293 palette transpositions caught on a posed skeleton (0.19-7.64 world units vs model extents 0.13-0.56); BLENDINDICES+1 shift 30/30 caught; the 4 misses are the (0,1) transposition on meshes whose vertices touching those two bones carry an exact 50/50 blend, where linear blending commutes -- unobservable in render too",
+  "single_bone_meshes_without_a_binding_control": 9,
+  "blocks_parsed_to_exact_declared_size": 6651,
+  "block_size_violations": 0,
+  "bytes_proven_byte_identical_to_stock": 4236156,
+  "changed_blocks_outside_NiMesh_NiDataStream_NiSkinningMeshModifier": 0,
+  "independent_readers": 4,
+  "canonical_form_corroboration": "independent random sample of 600 of the 5834 archive files, 0 parse failures: 2691 shipped hardware-skinned meshes, of which 2512 carry exactly the stride-48 form and 179 exactly the stride-52 COLOR form emitted here; stream usage/access (0,18)/(1,18)/(3,3) in all of them",
+  "rendered_in_game": false
+ },
+ "in_game_precedent": "SOULDOLL_28.nif was converted by this same method, shipped, and confirmed correct in game by the operator. It is a single-window mesh of the same easy class as every mesh here (1-12 bones, nsub=1, identity palette, BLENDINDICES carried across unchanged). That is the honest basis for calling this batch low risk -- precedent, not proof."
+}

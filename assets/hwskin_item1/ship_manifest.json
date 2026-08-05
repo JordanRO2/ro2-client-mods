@@ -1,0 +1,52 @@
+{
+  "fix": "hwskin_item1",
+  "archive": "ITEM1.VDK",
+  "stock_archive_md5": "5402c004f0dc4603fbcb45e5e9eceb26",
+  "client_build": "b303 2022-02-11 (PRISTINE)",
+  "change": "NiSkinningMeshModifier USE_SOFTWARE_SKINNING (Flags&1) removed; CPU deform-output streams replaced by one interleaved stride-48 GPU vertex stream + BONE_PALETTE; block count/order held constant.",
+  "files": [
+    {
+      "local": "ITEM/Etc/Craft/Noel_Female_Chef_Frypan.nif",
+      "in_archive_path": "ITEM\\Etc\\Craft\\Noel_Female_Chef_Frypan.nif",
+      "md5": "322159704f5622510e0415fa2fcaba21",
+      "size": 355028,
+      "stock_md5": "29a42d2e1a7a3ac5922c5a17716da323",
+      "stock_size": 363744,
+      "meshes_converted": 1,
+      "software_modifiers_remaining": 0
+    },
+    {
+      "local": "ITEM/Etc/Craft/Noel_Male_Chef_Frypan.nif",
+      "in_archive_path": "ITEM\\Etc\\Craft\\Noel_Male_Chef_Frypan.nif",
+      "md5": "7234d563a211f8aa7fb2022fe036fb02",
+      "size": 383327,
+      "stock_md5": "44358cba2b897268927fa6bfd87e80bc",
+      "stock_size": 392043,
+      "meshes_converted": 1,
+      "software_modifiers_remaining": 0
+    },
+    {
+      "local": "ITEM/MonsterParts/Wormtail_PartB_02.nif",
+      "in_archive_path": "ITEM\\MonsterParts\\Wormtail_PartB_02.nif",
+      "md5": "4c30597ea52d926ac5605d7a4d0c9dd7",
+      "size": 73127,
+      "stock_md5": "b557cfd725e798cdfbb62be9ce5b43e9",
+      "stock_size": 84693,
+      "meshes_converted": 1,
+      "software_modifiers_remaining": 0
+    },
+    {
+      "local": "ITEM/MonsterParts/Zealot_PartB_01.nif",
+      "in_archive_path": "ITEM\\MonsterParts\\Zealot_PartB_01.nif",
+      "md5": "81ea910b524bbea7c6b02be00b346314",
+      "size": 261173,
+      "stock_md5": "f5d7febe21127e639cbbcaa0fc0ea99e",
+      "stock_size": 300771,
+      "meshes_converted": 1,
+      "software_modifiers_remaining": 0
+    }
+  ],
+  "n_files": 4,
+  "n_meshes_converted": 4,
+  "rendered_in_game": false
+}

@@ -1,0 +1,68 @@
+{
+  "fix": "hwskin_hanbok",
+  "archive": "ITEM.VDK",
+  "stock_archive_md5": "c82ccc877218e2586400ce6c1a151925",
+  "client_build": "b303 2022-02-11 (PRISTINE)",
+  "purpose": "Noel ranking-statue defect: the statue path (Actor_ApplyStatueNPCShaderRecursive 0x4F7AC0) assigns the GPU-skinning material StatueNPC on the mere PRESENCE of a NiSkinningMeshModifier. Software-skinned meshes ship without a BONE_PALETTE, both SkinBone upload handlers (0xB9E801, 0xBCC181) bail out on a missing palette and return success, so the draw reuses whatever bone matrices the previous Char_Statue mesh left in the constant registers. These two files are the only pair in the client where the garment BODY is software-skinned.",
+  "change": "NiSkinningMeshModifier USE_SOFTWARE_SKINNING (Flags&1) removed (0x0003 -> 0x0002); sync points 2 -> 1; CPU deform-output POSITION/NORMAL streams dropped and replaced by one interleaved GPU-readable vertex stream [TEXCOORD, POSITION_BP, NORMAL_BP, BLENDINDICES, BLENDWEIGHT] at stride 48 usage/access (1,18), plus a BONE_PALETTE stream usage/access (3,3); material DefaultRag2ShaderNoSkin -> DefaultRag2ShaderSkin; block count/order/refs held constant (freed NiDataStream slots rewritten as 29-byte unreferenced 0-byte stubs, not deleted); all edits by splicing.",
+  "files": [
+    {
+      "local": "fixed/ITEM/PCPARTS/Costume/Female/Hanbok_Noel_Female_CHEST_01.nif",
+      "in_archive_path": "ITEM\\PCPARTS\\Costume\\Female\\Hanbok_Noel_Female_CHEST_01.nif",
+      "md5": "a2ddbf2712fb355010d621f189bccf5a",
+      "size": 447719,
+      "stock_md5": "66643b4c8b4ca6ccb46c972f4e1025e0",
+      "stock_size": 591913,
+      "blocks": 626,
+      "meshes_total": 18,
+      "meshes_converted": 12,
+      "meshes_already_hardware": 6,
+      "software_modifiers_remaining": 0,
+      "partitioned_mesh": {
+        "block": 402,
+        "name": "ALL_BODY:3",
+        "bones": 34,
+        "windows": 2,
+        "window_length": 30,
+        "duplicated_vertices": 0,
+        "window0_bones": "{0..16}",
+        "window1_bones": "{0,17..33}"
+      }
+    },
+    {
+      "local": "fixed/ITEM/PCPARTS/Costume/Female/Hanbok_Noel_Female_CHEST_02.nif",
+      "in_archive_path": "ITEM\\PCPARTS\\Costume\\Female\\Hanbok_Noel_Female_CHEST_02.nif",
+      "md5": "f5fdcff77edf8bcbb954ed337688231d",
+      "size": 405765,
+      "stock_md5": "7acb3af62a65c1f6a1800cc990110c35",
+      "stock_size": 549959,
+      "blocks": 590,
+      "meshes_total": 15,
+      "meshes_converted": 12,
+      "meshes_already_hardware": 3,
+      "software_modifiers_remaining": 0,
+      "partitioned_mesh": {
+        "block": 402,
+        "name": "ALL_BODY:3",
+        "bones": 34,
+        "windows": 2,
+        "window_length": 30,
+        "duplicated_vertices": 0,
+        "window0_bones": "{0,17..33}",
+        "window1_bones": "{0..16}"
+      }
+    }
+  ],
+  "n_files": 2,
+  "n_meshes_converted": 24,
+  "expected_differing_files_in_build": 2,
+  "verification": {
+    "deform_equivalence_max_deviation": 0.0,
+    "deform_pose_sets": ["stored per-bone bind transforms", "random distinct per-bone rigid motions"],
+    "mutation_controls_caught": "palette-window-base swap and palette-entry swaps detected on every converted mesh (deviation 2.4e0 - 1.4e2 world units under random transforms)",
+    "independent_readers": 4,
+    "bytes_changed_outside_permitted_blocks": 0,
+    "rendered_in_game": false
+  },
+  "known_open_item": "Root-cause analysis also proposed a binary patch at 0x4F7B27 as the more complete fix: it would cover all 104 software-skinned meshes client-wide and any future one, whereas this asset fix covers only these two files."
+}
