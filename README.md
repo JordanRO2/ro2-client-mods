@@ -97,7 +97,7 @@ You need Python 3.11+, the [VDK tool](../../../tools-ragnarok-online-2-vdk), and
 the b303 (2022-02-11) client — `Rag2.exe` md5 `cbeccb38bc455e9dd88ded2b43af76fe`.
 
 ```bash
-python exe/patch_client.py --in <stock Rag2.exe> --out Rag2.exe   # 24 fixes, 302 bytes
+python exe/patch_client.py --in <stock Rag2.exe> --out Rag2.exe   # 25 fixes, 307 bytes
 python tools/vdk.py build --from <stock ITEM.VDK> --apply <fix dir> --out ITEM.VDK
 python tools/vdk.py install --archive ITEM.VDK --to <client>/Data
 ```
@@ -108,7 +108,7 @@ stock. Both exist because a fix was once built on top of an archive that was not
 assumed to be, and silently carried 703 unrelated meshes into the game.
 
 Every file in the release is reproducible this way, byte for byte, from the stock client plus this
-repository. `python exe/patch_client.py --list` prints the full catalog of all 67 executable
+repository. `python exe/patch_client.py --list` prints the full catalog of all 68 executable
 fixes and which are enabled by default.
 
 To pick a subset rather than everything, `apply.py` drives the same machinery from the mod
@@ -127,7 +127,7 @@ a mod off genuinely removes it.
 
 | path | what it is |
 |---|---|
-| `exe/patch_client.py` | the executable fix catalog (67) and byte patcher — self-verifying, pattern-anchored |
+| `exe/patch_client.py` | the executable fix catalog (68) and byte patcher — self-verifying, pattern-anchored |
 | `assets/<fix>/` | one directory per mesh fix: the stock file, the fixed file, the repair script and a report |
 | `shaders/stock/` | the 42 pristine effects. Ground truth for verification — never edited |
 | `shaders/deployed/` | the 42 effects the release ships |
