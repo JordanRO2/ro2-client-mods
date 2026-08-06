@@ -1429,6 +1429,82 @@ def apply_af_global(data):
     return True, f"AF chokepoint cave @0x{cave_va:X} ({len(cave)} B); 0x45F740 hooked"
 
 
+# ---------------------------------------------------------------------------
+# RE-ENTRANT-TEARDOWN guard (2026-08). UIItemSlot_AttachTooltip (0x9DA420) makes a chain of
+# virtual calls on the tooltip object it stores at *(this+0x15C). The `vtable[+8](obj,2,..)` call
+# at 0x9DA518 re-enters and writes 0 to that slot, so the next reload+deref at 0x9DA51D/0x9DA523
+# makes a virtual call through NULL. Guard the reload; on NULL, skip the 2nd show call.
+PATCH_OFF_ATT_9DA51D = 0x600   # UIItemSlot_AttachTooltip: re-entrant NULL tooltip object
+
+
+def _att_9da51d_cave(cave_va):
+    """UIItemSlot_AttachTooltip 0x9DA51D..0x9DA523.
+
+    SITE (live, NOT from the 31-dump set): a Rag2.exe attached to x64dbg faulted at EIP
+    0x9DA523 `mov eax,[ecx]` with ECX=0, during rapid item-slot refresh driven by the
+    auto-pyramid. ECX had just been loaded `mov ecx,[esi+15Ch]` (the slot's tooltip object).
+    A debugger was attached, so the crash reporter wrote no dump -- provenance is the live
+    register state, N=1.
+
+    WHY NULL. The function sets *(this+0x15C)=a2 at 0x9DA468 (a2 is null-checked non-null at
+    entry) and dereferences it four times. It survives the first three. The
+    `vtable[+8](obj, 2, [esi+150h]==0)` call at 0x9DA518 tears the tooltip object down and
+    writes 0 to *(this+0x15C) -- the SAME store the function's own cleanup takes at 0x9DA450 --
+    so the reload at 0x9DA51D for the second `vtable[+8](obj, 1, ..)` call reads NULL and
+    0x9DA523 dies. Fault is a constant 0 (not a large garbage value), so `test`/`jz` suffices;
+    no 0x10000 threshold is needed.
+
+    HOOK. 6 bytes `mov ecx,[esi+15Ch]` at 0x9DA51D. The only xref into 0x9DA51D..0x9DA522 is
+    fall-through from 0x9DA51A (mid-basic-block, nothing branches in). EDX (`[esi+7Ch]`,
+    consumed by the replayed `and edx,1`) is loaded at 0x9DA51A, before the hook, so it is live.
+
+    BAIL. 0x9DA530 (`mov ecx,[esi+1D0h]`) -- the next block, independent of *(this+0x15C) and
+    already null-guarded. The epilogue's `mov eax,[esi+15Ch]` then returns 0, which the original
+    returns anyway. Cost of the guard firing: the tooltip's final show-state is not applied for
+    that one hover frame. Never a crash."""
+    c = _Cave(cave_va)
+    c.raw("8b8e5c010000", "mov ecx,[esi+15Ch]  (replay) -- tooltip object")
+    c.raw("85c9", "test ecx,ecx")
+    c.jcc("74", "bail", "jz bail -- torn down by the vtable[+8](,2,) call; skip the 2nd show call")
+    c.raw("8b01", "mov eax,[ecx]       (replay 0x9DA523) -- vptr")
+    c.raw("8b4008", "mov eax,[eax+8]    (replay 0x9DA525) -- vtable[+8]")
+    c.raw("83e201", "and edx,1          (replay 0x9DA528)")
+    c.raw("52", "push edx")
+    c.raw("6a01", "push 1")
+    c.jmp_abs(0x9DA52E, "jmp back to `call eax`")
+    c.label("bail")
+    c.jmp_abs(0x9DA530, "the [esi+1D0h] block -- already null-guarded")
+    return c.bytes()
+
+
+def apply_attach_tooltip_guard(data):
+    """Install the UIItemSlot_AttachTooltip re-entrant-NULL guard as a `.patch` cave + hook."""
+    try:
+        off = _rva_to_offset(data, 0x9DA51D - IMAGEBASE)
+    except ValueError as ex:
+        return None, str(ex)
+    if data[off] == 0xE9:
+        return False, "already applied (0x9DA51D hook present)"
+    sec_off, msg = _ensure_patch_section(data)
+    if sec_off is None:
+        return None, msg
+    cap = _patch_section_size(data) or PATCH_SECTION_SIZE
+    cave_va = PATCH_SECTION_VA + PATCH_OFF_ATT_9DA51D
+    cave = _att_9da51d_cave(cave_va)
+    if PATCH_OFF_ATT_9DA51D + len(cave) > cap:
+        return None, (f"cave needs 0x{PATCH_OFF_ATT_9DA51D + len(cave):X} but .patch is only "
+                      f"0x{cap:X} -- re-patch from the stock exe")
+    occupied = data[sec_off + PATCH_OFF_ATT_9DA51D: sec_off + PATCH_OFF_ATT_9DA51D + len(cave)]
+    if any(occupied) and bytes(occupied) != cave:
+        return None, f"cave slot 0x{PATCH_OFF_ATT_9DA51D:X} is occupied"
+    data[sec_off + PATCH_OFF_ATT_9DA51D: sec_off + PATCH_OFF_ATT_9DA51D + len(cave)] = cave
+    new = "e9" + struct.pack("<i", cave_va - (0x9DA51D + 5)).hex() + "90"
+    r, m = patch_at_va(data, 0x9DA51D, "8b8e5c010000", new)
+    if r is not True:
+        return None, f"hook @0x9DA51D failed: {m}"
+    return True, f"AttachTooltip guard cave @0x{cave_va:X} ({len(cave)} B); 0x9DA51D hooked"
+
+
 def apply_cf_null_guards(data):
     """Install the CF1/CF4/CF5 NULL-this/First() crash guards as `.patch` caves + hooks.
     Each hook jmps into a cave that null-checks the pointer, then either replays the overwritten
@@ -2038,6 +2114,39 @@ FIXES = [
             "           effects, vehicles, lights and post-processing all still rendering."
         ),
         apply=apply_vcall_target_guards,
+    ),
+    Fix(
+        id="attach_tooltip_reentrant_null_9da51d",
+        module="stability",
+        enabled=True,
+        title="UIItemSlot_AttachTooltip: NULL virtual-call after a re-entrant tooltip teardown",
+        why=(
+            "SYMPTOM  : hard crash reading address 0x00000000. Caught LIVE in x64dbg (NOT in the\n"
+            "           31-dump set): EIP 0x9DA523 `mov eax,[ecx]`, ECX=0, during rapid item-slot\n"
+            "           refresh driven by the auto-pyramid. A debugger was attached, so the crash\n"
+            "           reporter wrote no dump -- provenance is the live register state, N=1.\n"
+            "ROOT     : UIItemSlot_AttachTooltip (0x9DA420) stores the tooltip object in\n"
+            "           *(this+0x15C) (a2, null-checked non-null at entry) and makes four virtual\n"
+            "           calls on it. The `vtable[+8](obj, 2, [esi+150h]==0)` call at 0x9DA518\n"
+            "           re-enters and writes 0 to *(this+0x15C) -- the same store the function's\n"
+            "           own cleanup takes at 0x9DA450 -- so the reload at 0x9DA51D for the next\n"
+            "           `vtable[+8](obj, 1, ..)` call reads NULL and 0x9DA523 dereferences it.\n"
+            "           A constant fault of exactly 0 (not a large garbage pointer) means a plain\n"
+            "           null, so `test ecx,ecx`/`jz` catches it; no 0x10000 threshold is needed.\n"
+            "FIX      : hook the 6-byte `mov ecx,[esi+15Ch]` at 0x9DA51D into a cave that reloads\n"
+            "           the object and, if it is NULL, bails to 0x9DA530 -- the next block, which\n"
+            "           is independent of *(this+0x15C) and already null-guards its own pointers.\n"
+            "           The skipped call is only the tooltip's 2nd show-state; the epilogue then\n"
+            "           returns *(this+0x15C)=0, which the original returns anyway.\n"
+            "EVIDENCE : hook point verified as a clean mid-basic-block -- the only xref into\n"
+            "           0x9DA51D..0x9DA522 is fall-through from 0x9DA51A, and 0x9DA52E/0x9DA530\n"
+            "           are both instruction heads. EDX (`[esi+7Ch]`, consumed by the replayed\n"
+            "           `and edx,1`) is loaded at 0x9DA51A, before the hook, so it stays live.\n"
+            "RISK     : low. The guard only changes the NULL path (which crashed before); on the\n"
+            "           normal path the cave is byte-for-byte the original sequence. Worst case\n"
+            "           the tooltip's final show-state is not applied for that one hover frame."
+        ),
+        apply=apply_attach_tooltip_guard,
     ),
     Fix(
         id="struct_invariant_guards_2026_08",
