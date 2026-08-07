@@ -1505,6 +1505,66 @@ def apply_attach_tooltip_guard(data):
     return True, f"AttachTooltip guard cave @0x{cave_va:X} ({len(cave)} B); 0x9DA51D hooked"
 
 
+# ---------------------------------------------------------------------------
+# HandlePolishingPacket NULL guard (2026-08). The S2C polishing/honing packet handler loads
+# *(this+336) and immediately dereferences it (`mov eax,[eax+15Ch]`) BEFORE its own null check
+# on the result -- so a NULL polishing context faults reading [0x15C].
+PATCH_OFF_G_6D0E0B = 0x640   # HandlePolishingPacket: NULL *(this+336) deref
+
+
+def _g_6d0e0b_cave(cave_va):
+    """HandlePolishingPacket 0x6D0E0B..0x6D0E11 -- `mov eax,[ebx+150h]; mov eax,[eax+15Ch]`.
+
+    SITE: from an UNPATCHED-client dump set ("Nama"), EIP 0x6D0E11, read fault 0x15C. The code
+    dereferences *(this+336) (loading [.+0x15C]) before the function's own `if(!v5) return 0`
+    check, so when *(this+336) is NULL it reads [0 + 0x15C] and dies.
+
+    GUARD: after loading eax = *(this+336), if NULL bail to the function's OWN return-0 path at
+    0x6D0D7D (`xor al,al; pop ebx; <security-cookie epilogue>`). That path is reachable because
+    the hook sits after the prologue `push ebx` @0x6D0D76, so its `pop ebx` balances the stack.
+    eax is dead on entry here (it is loaded at the hook), so using it as the test reg is free.
+
+    HOOK: 6 bytes `mov eax,[ebx+150h]` @0x6D0E0B. Only xref in is fall-through from 0x6D0E09
+    (mid-basic-block); 0x6D0E17 (resume) and 0x6D0D7D (bail) are instruction heads."""
+    c = _Cave(cave_va)
+    c.raw("8b8350010000", "mov eax,[ebx+150h]  (replay) -- *(this+336) polishing context")
+    c.raw("85c0", "test eax,eax")
+    c.jcc("74", "bail", "jz bail -- context is NULL")
+    c.raw("8b805c010000", "mov eax,[eax+15Ch]  (replay 0x6D0E11)")
+    c.jmp_abs(0x6D0E17, "jmp back")
+    c.label("bail")
+    c.jmp_abs(0x6D0D7D, "the function's own return 0 (xor al,al; pop ebx; cookie epilogue)")
+    return c.bytes()
+
+
+def apply_polishing_null_guard(data):
+    """Install the HandlePolishingPacket NULL guard as a `.patch` cave + hook."""
+    try:
+        off = _rva_to_offset(data, 0x6D0E0B - IMAGEBASE)
+    except ValueError as ex:
+        return None, str(ex)
+    if data[off] == 0xE9:
+        return False, "already applied (0x6D0E0B hook present)"
+    sec_off, msg = _ensure_patch_section(data)
+    if sec_off is None:
+        return None, msg
+    cap = _patch_section_size(data) or PATCH_SECTION_SIZE
+    cave_va = PATCH_SECTION_VA + PATCH_OFF_G_6D0E0B
+    cave = _g_6d0e0b_cave(cave_va)
+    if PATCH_OFF_G_6D0E0B + len(cave) > cap:
+        return None, (f"cave needs 0x{PATCH_OFF_G_6D0E0B + len(cave):X} but .patch is only "
+                      f"0x{cap:X} -- re-patch from the stock exe")
+    occupied = data[sec_off + PATCH_OFF_G_6D0E0B: sec_off + PATCH_OFF_G_6D0E0B + len(cave)]
+    if any(occupied) and bytes(occupied) != cave:
+        return None, f"cave slot 0x{PATCH_OFF_G_6D0E0B:X} is occupied"
+    data[sec_off + PATCH_OFF_G_6D0E0B: sec_off + PATCH_OFF_G_6D0E0B + len(cave)] = cave
+    new = "e9" + struct.pack("<i", cave_va - (0x6D0E0B + 5)).hex() + "90"
+    r, m = patch_at_va(data, 0x6D0E0B, "8b8350010000", new)
+    if r is not True:
+        return None, f"hook @0x6D0E0B failed: {m}"
+    return True, f"Polishing NULL guard cave @0x{cave_va:X} ({len(cave)} B); 0x6D0E0B hooked"
+
+
 def apply_cf_null_guards(data):
     """Install the CF1/CF4/CF5 NULL-this/First() crash guards as `.patch` caves + hooks.
     Each hook jmps into a cave that null-checks the pointer, then either replays the overwritten
@@ -2147,6 +2207,34 @@ FIXES = [
             "           the tooltip's final show-state is not applied for that one hover frame."
         ),
         apply=apply_attach_tooltip_guard,
+    ),
+    Fix(
+        id="polishing_packet_null_guard_6d0e0b",
+        module="stability",
+        enabled=True,
+        title="HandlePolishingPacket: NULL polishing context dereferenced before its own null check",
+        why=(
+            "SYMPTOM  : hard crash reading address 0x0000015C. From an UNPATCHED-client dump set\n"
+            "           (\"Nama crashes after exe\"): EIP 0x6D0E11 `mov eax,[eax+15Ch]`, read fault\n"
+            "           0x15C. (That set also shows the 4 already-guarded sites -- GetActiveVehicle,\n"
+            "           the SpeedTree OOM int3, UIShowroom vptr -- which only fault on a client that\n"
+            "           does NOT have these patches, confirming the source exe was stock.)\n"
+            "ROOT     : HandlePolishingPacket (0x6D0D60) does `mov eax,[ebx+150h]` = *(this+336),\n"
+            "           then `mov eax,[eax+15Ch]` -- dereferencing that pointer BEFORE the\n"
+            "           function's own `if(!v5) return 0` check on the loaded value. When\n"
+            "           *(this+336) (the polishing UI context) is NULL, it reads [0 + 0x15C].\n"
+            "FIX      : hook the 6-byte `mov eax,[ebx+150h]` @0x6D0E0B into a cave that reloads\n"
+            "           the pointer and, if NULL, bails to the function's OWN return-0 path at\n"
+            "           0x6D0D7D (`xor al,al; pop ebx; cookie epilogue`). Reachable because the\n"
+            "           hook is after the prologue `push ebx`, so the pop balances the stack.\n"
+            "EVIDENCE : only xref into 0x6D0E0B..0x6D0E10 is fall-through from 0x6D0E09; the\n"
+            "           resume (0x6D0E17) and bail (0x6D0D7D) are both instruction heads; eax is\n"
+            "           dead on entry (loaded at the hook).\n"
+            "RISK     : low. Only the NULL path changes (it crashed before); on the normal path\n"
+            "           the cave is byte-for-byte the original two loads. A NULL context means the\n"
+            "           polishing window is not open, so returning 0 (no-op) is the correct result."
+        ),
+        apply=apply_polishing_null_guard,
     ),
     Fix(
         id="struct_invariant_guards_2026_08",
