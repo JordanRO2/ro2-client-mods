@@ -1565,6 +1565,106 @@ def apply_polishing_null_guard(data):
     return True, f"Polishing NULL guard cave @0x{cave_va:X} ({len(cave)} B); 0x6D0E0B hooked"
 
 
+# ---------------------------------------------------------------------------
+# Two more NULL guards (2026-08) from the "Zhong" dump set (192 stock-client dumps) -- the two
+# top recurring sites not already covered by other guards.
+PATCH_OFF_G_90B447 = 0x680   # SyncMountMotion: List::First(vehicle) NULL -> [+0x14]
+PATCH_OFF_G_7A356B = 0x6C0   # EquipmentUI_UpdateUI: skill-name map miss -> NULL -> [+0x1C]
+
+
+def _g_90b447_cave(cave_va):
+    """CGameActor::SyncMountMotion 0x90B447 -- `mov eax,[eax+14h]` where eax = the return of
+    `Concurrency::List::First(GetActiveVehicle(this))`. Zhong dumps: 25x, the TOP site. First()
+    returned NULL (the active vehicle's model list is empty) and it read [0 + 0x14].
+    GUARD: null-check the First() result; if NULL, bail to the function's own return at 0x90B59D
+    (skip the mount-motion sync this frame -- cosmetic; the vehicle state does not change within
+    the function, so returning early is safe). On the normal path replay `mov eax,[eax+14h];
+    push eax` and jmp to loc_90B535 exactly as the original. Hook: 9 bytes (mov+push+jmp)
+    @0x90B447; nothing branches into the range (only sequential flow)."""
+    c = _Cave(cave_va)
+    c.raw("85c0", "test eax,eax  -- First(vehicle) result")
+    c.jcc("74", "bail", "jz bail -- vehicle model-list is empty")
+    c.raw("8b4014", "mov eax,[eax+14h]  (replay 0x90B447)")
+    c.raw("50", "push eax           (replay)")
+    c.jmp_abs(0x90B535, "jmp loc_90B535 (the original target)")
+    c.label("bail")
+    c.jmp_abs(0x90B59D, "the function's own return")
+    return c.bytes()
+
+
+def apply_syncmount_null_guard(data):
+    """Install the SyncMountMotion First()-NULL guard as a `.patch` cave + hook."""
+    try:
+        off = _rva_to_offset(data, 0x90B447 - IMAGEBASE)
+    except ValueError as ex:
+        return None, str(ex)
+    if data[off] == 0xE9:
+        return False, "already applied (0x90B447 hook present)"
+    sec_off, msg = _ensure_patch_section(data)
+    if sec_off is None:
+        return None, msg
+    cap = _patch_section_size(data) or PATCH_SECTION_SIZE
+    cave_va = PATCH_SECTION_VA + PATCH_OFF_G_90B447
+    cave = _g_90b447_cave(cave_va)
+    if PATCH_OFF_G_90B447 + len(cave) > cap:
+        return None, f"cave needs 0x{PATCH_OFF_G_90B447 + len(cave):X} but .patch is only 0x{cap:X}"
+    occupied = data[sec_off + PATCH_OFF_G_90B447: sec_off + PATCH_OFF_G_90B447 + len(cave)]
+    if any(occupied) and bytes(occupied) != cave:
+        return None, f"cave slot 0x{PATCH_OFF_G_90B447:X} is occupied"
+    data[sec_off + PATCH_OFF_G_90B447: sec_off + PATCH_OFF_G_90B447 + len(cave)] = cave
+    new = "e9" + struct.pack("<i", cave_va - (0x90B447 + 5)).hex() + "90" * 4
+    r, m = patch_at_va(data, 0x90B447, "8b401450e9e5000000", new)
+    if r is not True:
+        return None, f"hook @0x90B447 failed: {m}"
+    return True, f"SyncMountMotion guard cave @0x{cave_va:X} ({len(cave)} B); 0x90B447 hooked"
+
+
+def _g_7a356b_cave(cave_va):
+    """EquipmentUI_UpdateUI 0x7A356B -- `cmp dword ptr [ebx+1Ch],8` (the SSO length check of a
+    std::wstring) where ebx = a skill-name entry from a std::map lookup (key 94). Zhong dumps:
+    14x. The lookup missed, so ebx (v17) was NULL and it read [0 + 0x1C].
+    GUARD: null-check ebx; if NULL, bail to the loop-continue at 0x7A3622 (skip this skill's
+    icon update, advance to the next slot). On the normal path replay `cmp [ebx+1Ch],8;
+    lea eax,[ebx+8]` and jmp to 0x7A3572 -- the `jb` there consumes the cmp's flags, and `lea`
+    does not touch flags, so they survive. Hook: 7 bytes @0x7A356B; only sequential flow in."""
+    c = _Cave(cave_va)
+    c.raw("85db", "test ebx,ebx  -- skill-name entry (v17)")
+    c.jcc("74", "bail", "jz bail -- map lookup missed")
+    c.raw("837b1c08", "cmp [ebx+1Ch],8   (replay) -- SSO length")
+    c.raw("8d4308", "lea eax,[ebx+8]    (replay)")
+    c.jmp_abs(0x7A3572, "jmp back (the jb that reads these flags)")
+    c.label("bail")
+    c.jmp_abs(0x7A3622, "the loop-continue (skip this skill)")
+    return c.bytes()
+
+
+def apply_equip_ui_null_guard(data):
+    """Install the EquipmentUI_UpdateUI skill-name-NULL guard as a `.patch` cave + hook."""
+    try:
+        off = _rva_to_offset(data, 0x7A356B - IMAGEBASE)
+    except ValueError as ex:
+        return None, str(ex)
+    if data[off] == 0xE9:
+        return False, "already applied (0x7A356B hook present)"
+    sec_off, msg = _ensure_patch_section(data)
+    if sec_off is None:
+        return None, msg
+    cap = _patch_section_size(data) or PATCH_SECTION_SIZE
+    cave_va = PATCH_SECTION_VA + PATCH_OFF_G_7A356B
+    cave = _g_7a356b_cave(cave_va)
+    if PATCH_OFF_G_7A356B + len(cave) > cap:
+        return None, f"cave needs 0x{PATCH_OFF_G_7A356B + len(cave):X} but .patch is only 0x{cap:X}"
+    occupied = data[sec_off + PATCH_OFF_G_7A356B: sec_off + PATCH_OFF_G_7A356B + len(cave)]
+    if any(occupied) and bytes(occupied) != cave:
+        return None, f"cave slot 0x{PATCH_OFF_G_7A356B:X} is occupied"
+    data[sec_off + PATCH_OFF_G_7A356B: sec_off + PATCH_OFF_G_7A356B + len(cave)] = cave
+    new = "e9" + struct.pack("<i", cave_va - (0x7A356B + 5)).hex() + "90" * 2
+    r, m = patch_at_va(data, 0x7A356B, "837b1c088d4308", new)
+    if r is not True:
+        return None, f"hook @0x7A356B failed: {m}"
+    return True, f"EquipmentUI guard cave @0x{cave_va:X} ({len(cave)} B); 0x7A356B hooked"
+
+
 def apply_cf_null_guards(data):
     """Install the CF1/CF4/CF5 NULL-this/First() crash guards as `.patch` caves + hooks.
     Each hook jmps into a cave that null-checks the pointer, then either replays the overwritten
@@ -2235,6 +2335,54 @@ FIXES = [
             "           polishing window is not open, so returning 0 (no-op) is the correct result."
         ),
         apply=apply_polishing_null_guard,
+    ),
+    Fix(
+        id="syncmount_first_null_guard_90b447",
+        module="stability",
+        enabled=False,   # SUPERSEDED: CF1 in `cf_null_guards` already guards this exact First()+0x14
+                         # site (bail 0x90B571). Enabling both makes cf_null_guards skip (its probe
+                         # sees this hook first) and LOSES CF4/CF5. Kept disabled for the record.
+                         # The 25x Zhong hits are only because that client is stock (no CF1).
+        title="[DISABLED — superseded by CF1] CGameActor::SyncMountMotion First() NULL guard",
+        why=(
+            "SYMPTOM  : the #1 recurring crash in the 192-dump \"Zhong\" set (stock client) -- 25\n"
+            "           dumps at EIP 0x90B447 `mov eax,[eax+14h]`, read fault at a small offset.\n"
+            "ROOT     : eax is the return of `Concurrency::List::First(GetActiveVehicle(this))`.\n"
+            "           When the active vehicle's model list is empty, First() returns NULL and\n"
+            "           the code reads [0 + 0x14] with no null check.\n"
+            "FIX      : hook the 9-byte `mov eax,[eax+14h]; push eax; jmp loc_90B535` @0x90B447\n"
+            "           into a cave that null-checks the First() result; if NULL it bails to the\n"
+            "           function's own return at 0x90B59D (the vehicle state does not change\n"
+            "           within the function, so returning early just skips one frame of mount\n"
+            "           sync -- cosmetic). The normal path replays the two ops and jumps to\n"
+            "           loc_90B535 unchanged.\n"
+            "EVIDENCE : nothing branches into 0x90B447..0x90B44F (only sequential flow); the\n"
+            "           resume (loc_90B535) and bail (0x90B59D, the `pop edi` epilogue) are heads.\n"
+            "RISK     : low -- only the NULL path changes; normal path is byte-identical."
+        ),
+        apply=apply_syncmount_null_guard,
+    ),
+    Fix(
+        id="equip_ui_skillname_null_guard_7a356b",
+        module="stability",
+        enabled=True,
+        title="EquipmentUI_UpdateUI: NULL skill-name map entry dereferenced at [+0x1C]",
+        why=(
+            "SYMPTOM  : the #3 recurring crash in the \"Zhong\" set -- 14 dumps at EIP 0x7A356B\n"
+            "           `cmp dword ptr [ebx+1Ch],8`.\n"
+            "ROOT     : ebx is a skill-name std::wstring entry fetched from a std::map lookup\n"
+            "           (key 94). When the lookup misses, the code sets the entry to NULL and\n"
+            "           still runs the wstring SSO check `cmp [ebx+1Ch],8`, reading [0 + 0x1C].\n"
+            "FIX      : hook the 7-byte `cmp [ebx+1Ch],8; lea eax,[ebx+8]` @0x7A356B into a cave\n"
+            "           that null-checks ebx; if NULL it bails to the loop-continue at 0x7A3622\n"
+            "           (skip this skill's icon update, advance to the next slot). The normal\n"
+            "           path replays cmp+lea and jumps to 0x7A3572 -- the `jb` there consumes\n"
+            "           the cmp's flags and `lea` leaves them intact, so they survive.\n"
+            "EVIDENCE : only sequential flow enters 0x7A356B..0x7A3571; 0x7A3622 is the loop\n"
+            "           tail (`mov ebx,[var_4]; ... add ebx,18h`), i.e. skip-to-next-slot.\n"
+            "RISK     : low -- only the NULL path changes; normal path is byte-identical."
+        ),
+        apply=apply_equip_ui_null_guard,
     ),
     Fix(
         id="struct_invariant_guards_2026_08",
