@@ -1665,6 +1665,65 @@ def apply_equip_ui_null_guard(data):
     return True, f"EquipmentUI guard cave @0x{cave_va:X} ({len(cave)} B); 0x7A356B hooked"
 
 
+# ---------------------------------------------------------------------------
+# UISkillIcon::ClearLinkedUI NULL-linked-UI guard (2026-08). Sibling of the AttachTooltip
+# re-entrant-teardown crash: the auto-pyramid churns UI slots so fast that the linked-UI object
+# at *(this+0x15C) is released re-entrantly, then this release-vcall runs on NULL.
+PATCH_OFF_G_9D72A6 = 0x700   # UISkillIcon::ClearLinkedUI: NULL *(this+0x15C) release vcall
+
+
+def _g_9d72a6_cave(cave_va):
+    """UISkillIcon::ClearLinkedUI 0x9D72A6 -- `mov ecx,[esi+15Ch]; mov edx,[ecx]; mov eax,[edx+8];
+    push 1; push 20h; call eax` = the `vtable[+8](linkedUI, 32, 1)` release call on the object at
+    *(this+0x15C). Caught LIVE in x64dbg (EIP 0x9D72AC, ECX=0), driven by AutoPyramid::Update via
+    the overlay window proc -- the same re-entrant-teardown class as the 0x9DA51D AttachTooltip
+    guard: the object is freed/nulled mid-refresh and this release then vcalls NULL.
+    GUARD: null-check *(this+0x15C); if NULL, skip the release and reconverge at 0x9D72B7 (the
+    next block reloads its own pointer from [esi+1D0h], so skipping a release of an already-gone
+    object is safe). Normal path replays the load, deref, and vcall unchanged.
+    HOOK: 6 bytes `mov ecx,[esi+15Ch]` @0x9D72A6. A jump from 0x9D7251 targets 0x9D72A6 (the hook
+    START = the E9), which is fine; nothing lands INSIDE 0x9D72A7..0x9D72AB."""
+    c = _Cave(cave_va)
+    c.raw("8b8e5c010000", "mov ecx,[esi+15Ch]  (replay) -- linked-UI object")
+    c.raw("85c9", "test ecx,ecx")
+    c.jcc("74", "done", "jz done -- linked-UI already released; skip the vcall")
+    c.raw("8b11", "mov edx,[ecx]       (replay 0x9D72AC) -- vptr")
+    c.raw("8b4208", "mov eax,[edx+8]    (replay 0x9D72AE) -- vtable[+8]")
+    c.raw("6a01", "push 1")
+    c.raw("6a20", "push 20h")
+    c.raw("ffd0", "call eax            (the release vcall)")
+    c.label("done")
+    c.jmp_abs(0x9D72B7, "reconverge (the [esi+1D0h] block)")
+    return c.bytes()
+
+
+def apply_skillicon_clearlinked_guard(data):
+    """Install the UISkillIcon::ClearLinkedUI NULL-linked-UI guard as a `.patch` cave + hook."""
+    try:
+        off = _rva_to_offset(data, 0x9D72A6 - IMAGEBASE)
+    except ValueError as ex:
+        return None, str(ex)
+    if data[off] == 0xE9:
+        return False, "already applied (0x9D72A6 hook present)"
+    sec_off, msg = _ensure_patch_section(data)
+    if sec_off is None:
+        return None, msg
+    cap = _patch_section_size(data) or PATCH_SECTION_SIZE
+    cave_va = PATCH_SECTION_VA + PATCH_OFF_G_9D72A6
+    cave = _g_9d72a6_cave(cave_va)
+    if PATCH_OFF_G_9D72A6 + len(cave) > cap:
+        return None, f"cave needs 0x{PATCH_OFF_G_9D72A6 + len(cave):X} but .patch is only 0x{cap:X}"
+    occupied = data[sec_off + PATCH_OFF_G_9D72A6: sec_off + PATCH_OFF_G_9D72A6 + len(cave)]
+    if any(occupied) and bytes(occupied) != cave:
+        return None, f"cave slot 0x{PATCH_OFF_G_9D72A6:X} is occupied"
+    data[sec_off + PATCH_OFF_G_9D72A6: sec_off + PATCH_OFF_G_9D72A6 + len(cave)] = cave
+    new = "e9" + struct.pack("<i", cave_va - (0x9D72A6 + 5)).hex() + "90"
+    r, m = patch_at_va(data, 0x9D72A6, "8b8e5c010000", new)
+    if r is not True:
+        return None, f"hook @0x9D72A6 failed: {m}"
+    return True, f"ClearLinkedUI guard cave @0x{cave_va:X} ({len(cave)} B); 0x9D72A6 hooked"
+
+
 def apply_cf_null_guards(data):
     """Install the CF1/CF4/CF5 NULL-this/First() crash guards as `.patch` caves + hooks.
     Each hook jmps into a cave that null-checks the pointer, then either replays the overwritten
@@ -2383,6 +2442,30 @@ FIXES = [
             "RISK     : low -- only the NULL path changes; normal path is byte-identical."
         ),
         apply=apply_equip_ui_null_guard,
+    ),
+    Fix(
+        id="skillicon_clearlinked_null_guard_9d72a6",
+        module="stability",
+        enabled=True,
+        title="UISkillIcon::ClearLinkedUI: NULL linked-UI object release-vcall (auto-pyramid)",
+        why=(
+            "SYMPTOM  : hard crash reading address 0x00000000. Caught LIVE in x64dbg: EIP\n"
+            "           0x9D72AC `mov edx,[ecx]`, ECX=0, with the call stack going through\n"
+            "           ro2mods.AutoPyramid::Update -> the overlay window proc -> rag2's UI.\n"
+            "ROOT     : `mov ecx,[esi+15Ch]; mov edx,[ecx]; mov eax,[edx+8]; push 1; push 20h;\n"
+            "           call eax` = the `vtable[+8](linkedUI, 32, 1)` release call on the object\n"
+            "           at *(this+0x15C). The auto-pyramid refreshes UI slots fast enough that\n"
+            "           the object is freed/nulled re-entrantly, then this release vcalls NULL.\n"
+            "           Same class as the 0x9DA51D AttachTooltip guard, a sibling site.\n"
+            "FIX      : hook the 6-byte `mov ecx,[esi+15Ch]` @0x9D72A6 into a cave that\n"
+            "           null-checks the object; if NULL it skips the release and reconverges at\n"
+            "           0x9D72B7 (the next block reloads its own pointer from [esi+1D0h], so\n"
+            "           skipping a release of an already-gone object is safe).\n"
+            "EVIDENCE : the only branch into the hook region targets 0x9D72A6 itself (the E9\n"
+            "           start), not the interior; 0x9D72B7 is an instruction head.\n"
+            "RISK     : low -- only the NULL path changes; normal path is byte-identical."
+        ),
+        apply=apply_skillicon_clearlinked_guard,
     ),
     Fix(
         id="struct_invariant_guards_2026_08",
