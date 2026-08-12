@@ -69,6 +69,18 @@ umbrella asset was packaged under the dartboard's filename. Only the male-human 
 affected, because that is the one file of four the game loads for that body. It shipped correct in
 2014-2015 builds and broke somewhere before 2021. Replaced with the correct model.
 
+### Content that was configured but never shown
+
+**Ten grade-4 quivers were set up to be honeable but never displayed it.** They carry the
+grinding flag, a full row of trait options and grade-4 stats — the flag was even turned on
+deliberately (the Eddga quiver in 2015, the Basilisk quiver a year earlier). But they keep the
+`Projectile` item type, and the client only renders the honing section of the tooltip for
+weapon and armor types, so a Projectile never shows honing no matter how it is set up. The
+configuration has been dead the whole time. Reclassifying the ten quivers as a weapon subtype
+(they still equip as quivers and still feed the bow) brings back the honing lines they were
+always meant to have. The empty-optioned Niflheim quiver is left alone. See
+`assets/quiver_honing/report.md`.
+
 ### Everything else on the CPU-skinning list
 
 The two bugs above turned out to be instances of one authoring accident, so the whole client was
