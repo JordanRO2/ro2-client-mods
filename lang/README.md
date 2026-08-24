@@ -48,7 +48,7 @@ Beyond the font swap, `FontInfo.xml` and the fonts themselves carry three tweaks
 ## Font word-spacing (the space glyph)
 
 `FontInfo.xml` has no word-spacing knob and the stock space glyph is a touch narrow, so
-the space character (U+0020) is widened in the fonts: its advance is bumped by 50 units
+the space character (U+0020) is widened in the fonts: its advance is bumped by 200 units
 (em = 1000) in all three Source Han Sans weights — only the space, not letter-spacing.
 Only the `hmtx` table is patched (the CFF outlines are byte-identical); reproduce with
 `tools/space_lang_fonts.py <pristine_font_dir> <out_dir>`.

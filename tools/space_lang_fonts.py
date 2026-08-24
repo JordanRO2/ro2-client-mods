@@ -28,7 +28,7 @@ import sys
 
 from fontTools.ttLib import TTFont  # read-only, to find the space glyph id
 
-DELTA = 50  # font units added to the space glyph's advance (em = 1000)
+DELTA = 200 # font units added to the space glyph's advance (em = 1000)
 FONTS = ["SourceHanSans.otf", "SourceHanSans-Light.otf", "SourceHanSans-Heavy.otf"]
 
 
