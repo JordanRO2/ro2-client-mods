@@ -45,18 +45,18 @@ Beyond the font swap, `FontInfo.xml` and the fonts themselves carry three tweaks
   height also enlarges other small HUD texts on that slot (HP/SP, hotkey labels, job level,
   other currencies).
 
-## Font letter-spacing
+## Font word-spacing (the space glyph)
 
-`FontInfo.xml` has no tracking knob, so a little letter-spacing is added in the fonts:
-`SourceHanSans.otf` and `SourceHanSans-Heavy.otf` have every proportional glyph's advance
-widened by 50 units (em = 1000); full-width CJK glyphs are left unchanged. Only the `hmtx`
-table is patched (the CFF outlines are byte-identical); reproduce with
+`FontInfo.xml` has no word-spacing knob and the stock space glyph is a touch narrow, so
+the space character (U+0020) is widened in the fonts: its advance is bumped by 50 units
+(em = 1000) in all three Source Han Sans weights — only the space, not letter-spacing.
+Only the `hmtx` table is patched (the CFF outlines are byte-identical); reproduce with
 `tools/space_lang_fonts.py <pristine_font_dir> <out_dir>`.
 
 ## Delivery
 
 These files are served to players through the launcher's language system (content-addressed
 blobs under `/api/public/lang/` + `lang_manifest.txt`). On a language **Update** the launcher
-downloads only what changed — the `FontInfo.xml` on a size/scaling tweak, or the two spaced
-Source Han Sans blobs when the fonts change — not the whole pack. The font blobs are shared
-across every language, so they download once.
+downloads only what changed — the `FontInfo.xml` on a size/scaling tweak, or the three
+space-widened Source Han Sans blobs when the fonts change — not the whole pack. The font
+blobs are shared across every language, so they download once.
