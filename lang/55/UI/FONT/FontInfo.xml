@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="euc-kr" ?>
+<FontInfo>
+	<FontParam index="0" height="12" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="1" height="12" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="2" height="10" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="3" height="10" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="4" height="10" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="5" height="10" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="6" height="9" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+	
+	<FontParam index="7" height="10" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="8" height="9" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="9" height="8" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="10" height="9" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="11" height="8" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="12" height="10" UseItalic="false" UseOutline="true" UseShadow="false"
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="13" height="9" UseItalic="false" UseOutline="false" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="14" height="10" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="15" height="9" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="16" height="10" UseItalic="false" UseOutline="false" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="d0b557"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="17" height="10" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0x00000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="18" height="10" UseItalic="false" UseOutline="true" UseShadow="false"
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xffCFE0F3"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="19" height="10" UseItalic="false" UseOutline="false" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="20" height="12" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="0" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="21" height="12" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="0" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="22" height="11" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="0" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="23" height="10" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="0" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="24" height="10" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="0" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="25" height="9" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="26" height="10" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="27" height="12" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="28" height="12" UseItalic="false" UseOutline="false" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="29" height="10" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="30" height="10" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="31" height="9" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff101010"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="32" height="12" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="33" height="12" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="34" height="13" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans-Heavy.otf">
+	</FontParam>
+	
+	<FontParam index="35" height="12" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+	
+	<!-- 36번은 운영자(툴) 공지 전용 폰트 인덱스입니다 -->
+	<FontParam index="36" height="24" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="2" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans-Heavy.otf">
+	</FontParam>
+	
+	<FontParam index="37" height="9" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+	
+	 <FontParam index="38" height="10" UseItalic="false" UseOutline="true" UseShadow="false" 
+	  BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xff63633a" OutlineColor="0xff000000"
+	  FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	 </FontParam>
+
+	 <FontParam index="39" height="12" UseItalic="false" UseOutline="true" UseShadow="false" 
+	  BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xff63633a" OutlineColor="0xff000000"
+	  FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	 </FontParam>
+	 
+	<FontParam index="40" height="10" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam> 
+	
+	<FontParam index="41" height="13" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans-Heavy.otf">
+	</FontParam>	
+
+	<!-- 42번은 시스템 메세지(스킬시전, 아이템사용 등) 전용 폰트 인덱스입니다 -->
+	<FontParam index="42" height="18" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans-Heavy.otf">
+	</FontParam>
+
+	<!-- 43번은 서버 선택창 경구 문구 전용 폰트 인덱스입니다 -->
+	<FontParam index="43" height="30" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans-Heavy.otf">
+	</FontParam>
+
+	<FontParam index="44" height="13" UseItalic="false" UseOutline="false" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans-Heavy.otf">
+	</FontParam>
+
+	<FontParam index="45" height="11" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="46" height="13" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans-Heavy.otf">
+	</FontParam>
+
+	<FontParam index="47" height="15" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans-Heavy.otf">
+	</FontParam>
+
+	<!-- 48번은 부활 전용 대기 시간 표시 입니다. -->	
+	<FontParam index="48" height="30" UseItalic="false" UseOutline="true" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans-Heavy.otf">
+	</FontParam>
+	
+	<FontParam index="49" height="10" UseItalic="false" UseOutline="false" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="0" ShadowOffset="0" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/1/UI/Font/" FontName="SourceHanSans.otf" UseFontScaling="false">
+	</FontParam>
+	
+	<FontParam index="50" height="10" UseItalic="false" UseOutline="false" UseShadow="true" 
+		BoldStrength="0" OutlineStrength="0" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/1/UI/Font/" FontName="SourceHanSans-Heavy.otf" UseFontScaling="false">
+	</FontParam>
+	
+	<FontParam index="51" height="12" UseItalic="false" UseOutline="true" UseShadow="false" 
+	  BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xff63633a" OutlineColor="0xff000000"
+	  FontPath="lang/1/UI/Font/" FontName="SourceHanSans.otf" UseFontScaling="false">
+	 </FontParam>
+	 
+	<FontParam index="52" height="11" UseItalic="false" UseOutline="true" UseShadow="false" 
+	  BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xff63633a" OutlineColor="0xff000000"
+	  FontPath="lang/1/UI/Font/" FontName="SourceHanSans.otf" UseFontScaling="false">
+	 </FontParam>
+	
+	<!-- US Chat Fonts -->
+	<FontParam index="1009" height="8" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+	
+	<FontParam index="1010" height="9" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+	
+	<FontParam index="1026" height="10" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+	
+	<FontParam index="1045" height="11" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="1046" height="13" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans-Heavy.otf">
+	</FontParam>
+
+	<FontParam index="1047" height="15" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans-Heavy.otf">
+	</FontParam>
+	
+	<!-- THAI Chat Fonts -->
+	<FontParam index="66009" height="8" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+	
+	<FontParam index="66010" height="9" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+	
+	<FontParam index="66026" height="10" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+	
+	<FontParam index="66045" height="11" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="66046" height="13" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans-Heavy.otf">
+	</FontParam>
+
+	<FontParam index="66047" height="15" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans-Heavy.otf">
+	</FontParam>
+	
+	<!-- JP Chat Fonts -->
+	<FontParam index="81009" height="8" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+	
+	<FontParam index="81010" height="9" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+	
+	<FontParam index="81026" height="10" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+	
+	<FontParam index="81045" height="11" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="81046" height="13" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans-Heavy.otf">
+	</FontParam>
+
+	<FontParam index="81047" height="15" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans-Heavy.otf">
+	</FontParam>
+	
+	<!-- TW Chat Fonts -->
+	<FontParam index="886009" height="9" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+	
+	<FontParam index="886010" height="10" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+	
+	<FontParam index="886026" height="11" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+	
+	<FontParam index="886045" height="12" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans.otf">
+	</FontParam>
+
+	<FontParam index="886046" height="14" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans-Heavy.otf">
+	</FontParam>
+
+	<FontParam index="886047" height="16" UseItalic="false" UseOutline="true" UseShadow="false" 
+		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
+		FontPath="lang/55/UI/Font/" FontName="SourceHanSans-Heavy.otf">
+	</FontParam>
+</FontInfo>
