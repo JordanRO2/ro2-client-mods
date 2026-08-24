@@ -55,7 +55,7 @@
 		FontPath="lang/66/UI/Font/" FontName="SourceHanSans.otf" UseFontScaling="false">
 	</FontParam>
 
-	<FontParam index="11" height="6" UseItalic="false" UseOutline="true" UseShadow="false" 
+	<FontParam index="11" height="9" UseItalic="false" UseOutline="true" UseShadow="false" 
 		BoldStrength="0" OutlineStrength="1" ShadowOffset="1" FontColor="0xffffffff" OutlineColor="0xff000000"
 		FontPath="lang/66/UI/Font/" FontName="SourceHanSans.otf" UseFontScaling="false">
 	</FontParam>
