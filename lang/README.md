@@ -48,10 +48,20 @@ Beyond the font swap, `FontInfo.xml` and the fonts themselves carry three tweaks
 ## Font word-spacing (the space glyph)
 
 `FontInfo.xml` has no word-spacing knob and the stock space glyph is a touch narrow, so
-the space character (U+0020) is widened in the fonts: its advance is bumped by 200 units
-(em = 1000) in all three Source Han Sans weights — only the space, not letter-spacing.
-Only the `hmtx` table is patched (the CFF outlines are byte-identical); reproduce with
-`tools/space_lang_fonts.py <pristine_font_dir> <out_dir>`.
+the space character (U+0020) is widened in the fonts: its advance is set to **290** units
+(em = 1000; stock is 225) in all three Source Han Sans weights — only the space, not
+letter-spacing. The glyph stays empty, so it is invisible; only its advance changes.
+
+The lever is the **Type2 charstring width inside the `CFF ` table, not `hmtx`.** Source Han
+Sans is a CID-keyed CFF font, and the client's text pipeline (HarfBuzz shaping over a
+FreeType face) reads U+0020's advance from the charstring width; patching `hmtx` alone has
+**no effect in game** (an earlier `hmtx`-only version silently did nothing). The space
+charstring is rewritten to `<290 - nominalWidthX> endchar`, and `hmtx` is set to 290 too
+for consistency with other tools. This is a raw binary CFF splice — fonttools cannot
+re-save these ~65k-glyph CID fonts (charset SIDs exceed 65535). Reproduce with
+`tools/space_lang_fonts.py <pristine_font_dir> <out_dir> [width]` (default 290); it emits
+the exact deployed blobs (`SourceHanSans.otf` md5 `41d19fb3…`, `-Light` `0013acf1…`,
+`-Heavy` `7ab8dc1f…`).
 
 ## Delivery
 
