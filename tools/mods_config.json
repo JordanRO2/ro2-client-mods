@@ -1,0 +1,68 @@
+{
+  "_comment": "Source of truth for the client-mods manifest served at /api/public/mods/mods_manifest.txt. Edit this, then run publish_mods.py to regenerate + deploy. urls are derived from serverBase/githubBase + each mod's file name. md5/size may be filled here or recomputed from local files with --files <dir>.",
+  "version": 4,
+  "serverBase": "https://rag2.booth-stash.com/api/public/mods/files/",
+  "githubBase": "https://github.com/JordanRO2/ro2-client-mods/releases/download/v1.0.0/",
+  "mods": [
+    {
+      "id": "Rag2_exe",
+      "installPath": "SHIPPING/Rag2.exe",
+      "file": "Rag2.exe",
+      "md5": "f8e7a86b0c3be00d3441909c43eb2a3b",
+      "size": 18887168,
+      "version": "1.0",
+      "title": "Executable fixes: 2->4GB address space, 72 byte patches, 35 crash guards"
+    },
+    {
+      "id": "DATA_VDK",
+      "installPath": "Data/DATA.VDK",
+      "file": "DATA.VDK",
+      "md5": "7b99f8d05369b6cd61d214635de2c1a7",
+      "size": 71453470,
+      "version": "1.0",
+      "deprecated": true,
+      "title": "Shaders & quality (REMOVED - failed on most systems)",
+      "clean": { "file": "DATA.clean.VDK", "md5": "51477073c54cb475da73d3fe4e978a59", "size": 71449138 }
+    },
+    {
+      "id": "ACTOR_VDK",
+      "installPath": "Data/ACTOR.VDK",
+      "file": "ACTOR.VDK",
+      "md5": "530841dca2d67fd7dde1297a90138c42",
+      "size": 704281435,
+      "version": "1.0",
+      "title": "Character models: 103 meshes CPU->GPU skinning, doll shadow fix",
+      "clean": { "file": "ACTOR.clean.VDK", "md5": "9560d9eece500dc162e90ebd8f95d9b2", "size": 704362625 }
+    },
+    {
+      "id": "ASSET_VDK",
+      "installPath": "Data/ASSET.VDK",
+      "file": "ASSET.VDK",
+      "md5": "d55112cda7f3613be5cd4d80e302ba3d",
+      "size": 5091695,
+      "version": "1.0",
+      "title": "Game tables: honing reclass (grade-4 quivers), etc.",
+      "clean": { "file": "ASSET.clean.VDK", "md5": "91c32367eee36dd0016a72bc001568ec", "size": 5091712 }
+    },
+    {
+      "id": "ITEM_VDK",
+      "installPath": "Data/ITEM.VDK",
+      "file": "ITEM.VDK",
+      "md5": "3e576b5946a86eed045c387e85574020",
+      "size": 1128368341,
+      "version": "1.0",
+      "title": "Item models: inside-out meshes fixed (Chieftain Great Sword +5)",
+      "clean": { "file": "ITEM.clean.VDK", "md5": "c82ccc877218e2586400ce6c1a151925", "size": 1128650077 }
+    },
+    {
+      "id": "ITEM1_VDK",
+      "installPath": "Data/ITEM1.VDK",
+      "file": "ITEM1.VDK",
+      "md5": "f78b100cb8760d8e2ad200b13e5a8cb1",
+      "size": 85286156,
+      "version": "1.0",
+      "title": "Item models (batch 1)",
+      "clean": { "file": "ITEM1.clean.VDK", "md5": "5402c004f0dc4603fbcb45e5e9eceb26", "size": 85294081 }
+    }
+  ]
+}
