@@ -38,10 +38,10 @@
       "id": "ASSET_VDK",
       "installPath": "Data/ASSET.VDK",
       "file": "ASSET.VDK",
-      "md5": "d55112cda7f3613be5cd4d80e302ba3d",
-      "size": 5091695,
+      "md5": "6b66050611606b7fe56eeb2d7767a920",
+      "size": 5091686,
       "version": "1.0",
-      "title": "Game tables: honing reclass (grade-4 quivers), etc.",
+      "title": "Game tables: honing reclass (grade-4 quivers), Evil Wing Hat model fix",
       "clean": { "file": "ASSET.clean.VDK", "md5": "91c32367eee36dd0016a72bc001568ec", "size": 5091712 }
     },
     {
