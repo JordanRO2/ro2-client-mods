@@ -48,10 +48,10 @@
       "id": "ITEM_VDK",
       "installPath": "Data/ITEM.VDK",
       "file": "ITEM.VDK",
-      "md5": "3e576b5946a86eed045c387e85574020",
-      "size": 1128368341,
+      "md5": "ea95d1f107a4d106a219588f66c3cd14",
+      "size": 1128368333,
       "version": "1.0",
-      "title": "Item models: inside-out meshes fixed (Chieftain Great Sword +5)",
+      "title": "Item models: inside-out meshes fixed, Sheriff Suit (Noel) right-hand rig fix",
       "clean": { "file": "ITEM.clean.VDK", "md5": "c82ccc877218e2586400ce6c1a151925", "size": 1128650077 }
     },
     {
