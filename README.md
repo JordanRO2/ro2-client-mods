@@ -23,14 +23,6 @@ unmodified stock, so restoring is just copying them back. Check what you downloa
 That is the whole procedure. If you would rather build the files yourself from your own client,
 see [Building it yourself](#building-it-yourself).
 
-### Keeping the install
-
-Every file above is a stock client file replaced in place, so any patcher that checks the client
-against build 303 sees them as modified and restores them to stock — **the original launcher
-reverts the fixes.** After installing, don't update the client through the original launcher; use
-the [Second Dawn launcher](https://rag2.booth-stash.com/mods) instead, which updates the client
-while leaving these files untouched.
-
 ---
 
 ## What is fixed

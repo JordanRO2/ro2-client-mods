@@ -1671,6 +1671,129 @@ def apply_equip_ui_null_guard(data):
 # at *(this+0x15C) is released re-entrantly, then this release-vcall runs on NULL.
 PATCH_OFF_G_9D72A6 = 0x700   # UISkillIcon::ClearLinkedUI: NULL *(this+0x15C) release vcall
 
+PATCH_OFF_CAMDEDUP = 0x720   # camera-upload dedup: 8 B of state at 0x720, code at 0x728
+
+
+def _camdedup_cave(code_va, data_va):
+    """NiDX9Renderer::SetCameraData (sub_BB2C70) -- skip the call when nothing it sets has changed.
+
+    WHAT THE FUNCTION DOES. Its entire externally visible effect is three D3D9 calls:
+    SetTransform(D3DTS_VIEW, this+2032), SetTransform(D3DTS_PROJECTION, this+2096) and, when a
+    render target is bound, SetViewport. Everything else is bookkeeping into `this`.
+
+    WHY THE EARLY-OUT IS SOUND, not a guess. The function CACHES every one of its own inputs, in
+    the same call that consumes them:
+        a5 -> this+2160    a4 -> this+2176    a3 -> this+2192    a2 -> this+2208
+        a6 -> this+2444    (qmemcpy 0x1C)     a7 -> this+2472    (0x10, incl. the return at +2484)
+    So if all six inputs are byte-identical to those caches, the D3D state currently bound was
+    computed from exactly these values -- re-issuing the three calls cannot change anything. This
+    is a much stronger claim than a hash of the camera object: we compare against the values the
+    function itself last consumed.
+
+    WHY IT MATTERS HERE. sub_C407D0 -> sub_C56250 -> sub_C57570 -> this runs for EVERY actor,
+    vehicle, attachment and terrain node, BEFORE culling, so a crowded frame issues hundreds to
+    thousands of byte-identical uploads. On native D3D9 SetTransform is a cheap state write; under
+    a D3D9->D3D11/12 (dgVoodoo2) or D3D9->Vulkan (DXVK) translation layer each one invalidates the
+    wrapper's derived matrices and fixed-function constant buffer, and SetViewport re-binds
+    viewport state. That is one core busy with the GPU starved -- the measured "GPU ~10%,
+    CPU ~10%, frame rate capped" signature.
+
+    IDENTITY GUARD. Two extra comparisons keep the memo honest across state we do NOT own:
+    the renderer `this` (so a second renderer instance can never match another's caches) and
+    this+1784, the bound render target (the viewport is derived from its width/height, so a
+    render-target switch -- shadow pass, UI render-to-texture -- must invalidate). Both live in
+    the 8 bytes at `data_va` and are refreshed on every non-matching call.
+
+    CONTROL FLOW. The hook replaces 10 bytes at 0xBB2C88 (the `mov eax,[ebp-3Ch]` +
+    `movzx ecx,[eax+56Ch]` pair), which this cave replays. The +1388 guard is honoured unchanged.
+    On a full match we load the value the body would have returned (this+2484) and jump to
+    loc_BB339D -- the function's OWN epilogue, which pops edi/esi and runs the /GS cookie check.
+    We never `retn` from the cave: the frame has a stack cookie and two pushed registers.
+
+    REGISTERS. eax/ecx/edx are caller-scratch; esi/edi were pushed at 0xBB2C83/84 and are restored
+    by that same epilogue, so `repe cmpsd` may use them freely. `cld` is emitted because the string
+    compares require DF=0.
+
+    LAYOUT. `Lupdate` sits in the MIDDLE on purpose: with 188 bytes of code and one common bail
+    target, an end-to-end rel8 branch would be out of range. Every branch here is <=101 bytes, and
+    _Cave raises at build time if that ever stops being true."""
+    THIS_SLOT = struct.pack("<I", data_va).hex()
+    RT_SLOT   = struct.pack("<I", data_va + 4).hex()
+
+    def block(c, src_hex, cache_off, dwords, note):
+        c.raw(src_hex, "mov esi,[ebp+..]   ; " + note)
+        c.raw("8db8" + struct.pack("<I", cache_off).hex(),
+              "lea edi,[eax+%Xh]" % cache_off)
+        c.raw("b9" + struct.pack("<I", dwords).hex(), "mov ecx,%d" % dwords)
+        c.raw("f3a7", "repe cmpsd")
+        c.jcc("75", "Lupdate", "jne -> inputs differ, run the real body")
+
+    c = _Cave(code_va)
+    c.raw("8b45c4",         "mov eax,[ebp-3Ch]           ; this   (replay of the hooked bytes)")
+    c.raw("0fb6886c050000", "movzx ecx,byte [eax+56Ch]   ; +1388 guard (replay)")
+    c.raw("85c9",           "test ecx,ecx")
+    c.jcc("75", "Lback",    "guard set -> let the original test/jnz reach the epilogue")
+    c.raw("fc",             "cld                         ; repe cmpsd requires DF=0")
+    c.raw("3b05" + THIS_SLOT, "cmp eax,[lastThis]")
+    c.jcc("75", "Lupdate")
+    c.raw("8b90f8060000",   "mov edx,[eax+6F8h]          ; this+1784 = bound render target")
+    c.raw("3b15" + RT_SLOT, "cmp edx,[lastRT]")
+    c.jcc("75", "Lupdate")
+    block(c, "8b7514", 0x870, 3, "a5 vs this+2160")
+    block(c, "8b7510", 0x880, 3, "a4 vs this+2176")
+    block(c, "8b750c", 0x890, 3, "a3 vs this+2192")
+    c.jcc("eb", "Lb456",    "unconditional jmp over the trampolines (EB = jmp rel8)")
+
+    c.label("Lupdate")
+    c.raw("8b45c4",           "mov eax,[ebp-3Ch]")
+    c.raw("a3" + THIS_SLOT,   "mov [lastThis],eax")
+    c.raw("8b90f8060000",     "mov edx,[eax+6F8h]")
+    c.raw("8915" + RT_SLOT,   "mov [lastRT],edx")
+    c.raw("33c9",             "xor ecx,ecx                 ; guard was clear -> fall through")
+    c.label("Lback")
+    c.raw("8b45c4",           "mov eax,[ebp-3Ch]           ; eax = this, as the original had it")
+    c.jmp_abs(0xBB2C92,       "back to `test ecx,ecx`")
+
+    c.label("Lb456")
+    block(c, "8b7508", 0x8A0, 3, "a2 vs this+2208")
+    block(c, "8b7518", 0x98C, 7, "a6 frustum vs this+2444")
+    block(c, "8b751c", 0x9A8, 4, "a7 viewport vs this+2472")
+    c.raw("8b80b4090000", "mov eax,[eax+9B4h]          ; this+2484 = the body's return value")
+    c.jmp_abs(0xBB339D,   "the function's own epilogue (pop edi/esi, /GS check, retn 18h)")
+    return c.bytes()
+
+
+def _apply_camera_upload_dedup(data):
+    HOOK_VA  = 0xBB2C88
+    ORIG_HEX = "8b45c40fb6886c050000"
+    try:
+        probe = _rva_to_offset(data, HOOK_VA - IMAGEBASE)
+    except ValueError as ex:
+        return None, str(ex)
+    if data[probe] == 0xE9:
+        return False, "already applied (BB2C88 hook present)"
+    sec_off, msg = _ensure_patch_section(data)
+    if sec_off is None:
+        return None, msg
+    slot    = PATCH_OFF_CAMDEDUP
+    data_va = PATCH_SECTION_VA + slot
+    code_va = data_va + 8
+    cave    = _camdedup_cave(code_va, data_va)
+    blob    = b"\x00" * 8 + cave           # 8 B of zeroed state, then the code
+    err = _check_cave_fits(data, slot, blob, "CAMDEDUP")
+    if err:
+        return None, err
+    occupied = data[sec_off + slot: sec_off + slot + len(blob)]
+    if any(occupied) and bytes(occupied) != blob:
+        return None, "cave slot 0x%X (CAMDEDUP) is occupied" % slot
+    data[sec_off + slot: sec_off + slot + len(blob)] = blob
+    new = "e9" + struct.pack("<i", code_va - (HOOK_VA + 5)).hex() + "90" * 5
+    r, m = patch_at_va(data, HOOK_VA, ORIG_HEX, new)
+    if r is not True:
+        return None, "hook @0x%X failed: %s" % (HOOK_VA, m)
+    return True, "camera-upload dedup installed (.patch cave %d B @0x%X)" % (len(cave), code_va)
+
+
 
 def _g_9d72a6_cave(cave_va):
     """UISkillIcon::ClearLinkedUI 0x9D72A6 -- `mov ecx,[esi+15Ch]; mov edx,[ecx]; mov eax,[edx+8];
@@ -3878,6 +4001,42 @@ FIXES = [
             "           smoother pacing under CPU load."
         ),
         apply=lambda d: patch_at_va(d, 0xA50FC2, "53ff15c8523501", "90909090909090"),
+    ),
+    Fix(
+        id="camera_upload_dedup",
+        module="efficiency",
+        enabled=False,
+        title="Skip the per-object camera upload when nothing about the camera changed",
+        why=(
+            "WHAT     : NiDX9Renderer::SetCameraData (sub_BB2C70) is reached once per actor, per\n"
+            "           vehicle, per attachment and per terrain node, BEFORE culling, via\n"
+            "           sub_C407D0 -> sub_C56250 -> sub_C57570. Its whole visible effect is three\n"
+            "           D3D9 calls: SetTransform(VIEW), SetTransform(PROJECTION) and SetViewport.\n"
+            "           A crowded frame therefore issues hundreds to thousands of byte-identical\n"
+            "           uploads. A .patch cave at 0xBB2C88 compares the six inputs against the\n"
+            "           caches the function itself writes and, on a full match, jumps to the\n"
+            "           function's own epilogue.\n"
+            "EVIDENCE : the function caches every input it consumes -- a5->this+2160, a4->+2176,\n"
+            "           a3->+2192, a2->+2208, a6->+2444 (qmemcpy 0x1C), a7->+2472 (0x10, and the\n"
+            "           returned dword at +2484). Identical inputs therefore mean the bound D3D\n"
+            "           state was computed from exactly these values, so the three calls are\n"
+            "           provably redundant. Confirmed as the top finding of the 2026-09-02 IDA\n"
+            "           audit (adversarially verified; see wiki client/performance-audit-2026-09.md).\n"
+            "           The memo also compares the renderer `this` and the bound render target\n"
+            "           (this+1784), so a second renderer or a render-target switch invalidates it.\n"
+            "QUALITY  : neutral by construction -- the skipped calls would have re-set state that\n"
+            "           is already bound. Nothing about what is drawn changes.\n"
+            "WHY IT PAYS HERE: under a D3D9->D3D11/12 or ->Vulkan translation wrapper each\n"
+            "           SetTransform invalidates derived matrices and the fixed-function constant\n"
+            "           buffer; this is the measured 'GPU ~10%, CPU ~10%, capped' signature.\n"
+            "RISK     : medium, and UNMEASURED IN GAME AS OF THIS WRITING. The residual risk is\n"
+            "           state we do not own: if anything between two identical calls sets\n"
+            "           D3DTS_VIEW/PROJECTION or the viewport by another path, skipping leaves it\n"
+            "           stale. The render-target term covers the shadow pass and UI\n"
+            "           render-to-texture, which are the known switchers. TEST: shadow pass, UI\n"
+            "           render-to-texture, camera cuts, vehicle/mount cameras, zoning."
+        ),
+        apply=_apply_camera_upload_dedup,
     ),
     Fix(
         id="present_immediate",
